@@ -1,0 +1,56 @@
+# Local full stack. Service Dockerfiles are added as each deployable is implemented (M0).
+# Usage: cp .env.example .env && docker compose up
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-matchbox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-matchbox}
+      POSTGRES_DB: ${POSTGRES_DB:-matchbox}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-matchbox}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # api:
+  #   build: { context: ., dockerfile: apps/api/Dockerfile }
+  #   env_file: .env
+  #   depends_on: { db: { condition: service_healthy } }
+  #   ports: ["3000:3000"]
+
+  # ai:
+  #   build: { context: services/ai, dockerfile: Dockerfile }
+  #   command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
+  #   env_file: .env
+  #   depends_on: { db: { condition: service_healthy } }
+  #   ports: ["8000:8000"]
+
+  # worker:
+  #   build: { context: services/ai, dockerfile: Dockerfile }
+  #   command: uvicorn app.worker.main:app --host 0.0.0.0 --port 8001
+  #   env_file: .env
+  #   depends_on: { db: { condition: service_healthy } }
+  #   ports: ["8001:8001"]
+
+  # web:
+  #   build: { context: ., dockerfile: apps/web/Dockerfile }
+  #   env_file: .env
+  #   ports: ["5173:80"]
+
+  # Optional local LLM: docker compose --profile ollama up
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+volumes:
+  pgdata:
+  ollama:
