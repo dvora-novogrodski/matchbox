@@ -7,6 +7,19 @@ Python, FastAPI, LangGraph. One codebase, two deployments:
 
 Internal AI design lives in the separate *Matchbox AI HLD*.
 
+## Run locally
+
+```bash
+cd services/ai
+python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+.venv/bin/uvicorn app.api.main:app --port 8000      # AI service
+.venv/bin/uvicorn app.worker.main:app --port 8001   # AI worker
+curl localhost:8000/health
+.venv/bin/pytest
+```
+
+## Layout
+
 ```
 app/
   api/

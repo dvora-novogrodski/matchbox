@@ -32,3 +32,5 @@ ollama/
 # Logs
 *.log
 npm-debug.log*
+*.egg-info/
+.pytest_cache/
