@@ -2,6 +2,9 @@
 
 React + TypeScript, built as static files. Talks only to `apps/api` (D2).
 
+Run: `npm run dev -w @matchbox/web` (http://localhost:5173, needs the API on `VITE_API_URL`, default `http://localhost:3000`).
+Test: `npm test -w @matchbox/web`. Build: `npm run build -w @matchbox/web`.
+
 ```
 src/
   app/          Router, providers, layout shell
