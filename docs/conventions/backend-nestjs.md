@@ -2,7 +2,7 @@
 
 ## 1. Stack
 
-- NestJS latest major on **Fastify** (`@nestjs/platform-fastify`). Node 24 LTS.
+- NestJS 11 on **Fastify** (`@nestjs/platform-fastify`). Node 24 LTS. NestJS 12 is ESM-only and `nestjs-zod` does not support it yet; revisit when it does.
 - Zod (v4) and `nestjs-zod` for every request and response body. Zod schemas are shared with the web app, so one schema validates the form, the request, and the response.
 - `nestjs-pino` for logging, `@nestjs/terminus` for health, `@nestjs/swagger` for OpenAPI, `@fastify/helmet`.
 - Postgres with pgvector, through **Prisma** and Prisma Migrate.
@@ -240,7 +240,6 @@ void bootstrap();
 
 ## 13. Changes needed in the current scaffold
 
-- Replace `@nestjs/platform-express` with `@nestjs/platform-fastify` and upgrade NestJS to the latest major.
 - Move `process.env` reads from `main.ts` into the config schema.
 - Replace the single `GET /health` with terminus `live` and `ready`.
 - Replace `src/database/entities/` and `src/database/migrations/` with `apps/api/prisma/` and `src/common/prisma/`.
