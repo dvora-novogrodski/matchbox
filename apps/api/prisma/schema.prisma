@@ -2,9 +2,11 @@
 // Enum values mirror the `as const` lists in @matchbox/shared.
 
 generator client {
-  provider     = "prisma-client"
-  output       = "../src/generated/prisma"
-  moduleFormat = "cjs"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  // Explicit so the output does not depend on whether tsconfig.json is present at generate time (Docker).
+  importFileExtension = "js"
 }
 
 // The vector extension is created in the first migration.

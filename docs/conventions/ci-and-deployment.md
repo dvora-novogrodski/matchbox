@@ -4,42 +4,27 @@
 
 One `Dockerfile` per deployable (`apps/api/Dockerfile`, `services/ai/Dockerfile`), built from the repo root so workspace packages are available.
 
-```dockerfile
-FROM node:24 AS builder
-WORKDIR /repo
-COPY package.json package-lock.json ./
-COPY apps/api/package.json apps/api/
-COPY packages/shared/package.json packages/shared/
-COPY apps/api/prisma apps/api/prisma
-RUN npm ci -w @matchbox/api -w @matchbox/shared --include-workspace-root
-COPY tsconfig*.json ./
-COPY packages/shared packages/shared
-COPY apps/api apps/api
-RUN npm run build -w @matchbox/shared && npm run build -w @matchbox/api \
-    && npm prune --omit=dev
+The API image (`apps/api/Dockerfile`) has four stages:
 
-FROM node:24-alpine
-RUN apk add --no-cache dumb-init
-ENV NODE_ENV=production
-WORKDIR /app
-COPY --from=builder --chown=node:node /repo/node_modules ./node_modules
-COPY --from=builder --chown=node:node /repo/packages/shared ./packages/shared
-COPY --from=builder --chown=node:node /repo/apps/api/dist ./dist
-USER node
-EXPOSE 3000
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "dist/main.js"]
-```
+| Stage | Contents |
+| --- | --- |
+| `deps` | `npm ci` for `@matchbox/api` and `@matchbox/shared` with the Prisma schema and `prisma.config.ts` copied first, then the sources |
+| `migrate` | `deps` plus `CMD npm run db:deploy`; the target for `docker compose` and the CI migration step |
+| `builder` | `nest build`, then `npm prune --omit=dev --omit=optional --ignore-scripts` |
+| runtime | `node:24-alpine`, `dumb-init`, the pruned `node_modules`, and `dist`, in the repo layout under `/app` |
 
 Rules:
 
 - Multi-stage build. The runtime stage is alpine with only production `node_modules` and `dist`, and `dumb-init` as PID 1 so signals reach Node and shutdown hooks run.
-- The Prisma schema is copied before `npm ci`, because `postinstall` runs `prisma generate`. The generator lists the alpine binary target (`binaryTargets = ["native", "linux-musl-openssl-3.0.x"]`) if the Prisma version still uses native engines.
-- The image does not run migrations; the deploy workflow does (see section 3).
+- The Prisma schema and `prisma.config.ts` are copied before `npm ci`, because `postinstall` runs `prisma generate`. Prisma 7 has no native engine, so no binary targets are needed.
+- `npm prune` needs `--omit=optional` because `@prisma/client` lists the Prisma CLI and TypeScript as optional peers, which `--omit=dev` alone keeps. It needs `--ignore-scripts` so `postinstall` does not run again without the dev dependencies.
+- The runtime stage keeps the repo layout (`/app/node_modules`, `/app/apps/api/node_modules`, `/app/apps/api/dist`) so packages that npm nests under the workspace still resolve.
+- The image does not run migrations; the deploy workflow does (see section 3), with the `migrate` stage.
 - Run as the non-root `node` user.
 - No secrets in images or build args. Runtime secrets come from Secret Manager through Cloud Run.
 - `.dockerignore` excludes `node_modules`, `dist`, `coverage`, `.env*`, and `.git`.
-- The web app is not containerized for production. It deploys as static files.
+- The web app is not containerized for production. It deploys as static files. `apps/web/Dockerfile` (static build served by nginx) exists only for local `docker compose`.
+- `services/ai/Dockerfile` builds one image for the AI service and the AI worker; the command selects `app.api.main` or `app.worker.main`.
 
 ## 2. GitHub Actions
 

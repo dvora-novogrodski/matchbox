@@ -27,10 +27,20 @@ docs/           Design docs, conventions, and ADRs.
 
 ```bash
 cp .env.example .env
-docker compose up            # Postgres + pgvector (services are enabled as they are implemented)
+docker compose up --build    # full stack; migrations run first in the one-off `migrate` service
 docker compose --profile ollama up   # optional local LLM
 ```
 
+| Service | URL |
+| --- | --- |
+| Web | http://localhost:5173 |
+| API | http://localhost:3000/health/ready |
+| AI service | http://localhost:8000/health |
+| AI worker | http://localhost:8001/health |
+| Postgres | `localhost:5432` |
+
+For day-to-day work, run only `docker compose up -d db` and start the API (`npm run start:dev -w @matchbox/api`) and the web app (`npm run dev -w @matchbox/web`) on the host. Stop the compose `api` and `web` services first, since they use the same ports.
+
 ## Milestones
 
-See section 11 of the HLD. Current: **M0 – Foundations** (monorepo structure done; compose, CI, health checks and schema v1 next).
+See section 11 of the HLD. Current: **M0 – Foundations** (monorepo, schema v1, health checks, and compose done; CI next).

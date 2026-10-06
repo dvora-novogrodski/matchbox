@@ -1,5 +1,6 @@
-# Local full stack. Service Dockerfiles are added as each deployable is implemented (M0).
-# Usage: cp .env.example .env && docker compose up
+# Local full stack. Usage: cp .env.example .env && docker compose up --build
+x-database-url: &database-url postgresql://${POSTGRES_USER:-matchbox}:${POSTGRES_PASSWORD:-matchbox}@db:5432/${POSTGRES_DB:-matchbox}
+
 services:
   db:
     image: pgvector/pgvector:pg16
@@ -17,30 +18,52 @@ services:
       timeout: 3s
       retries: 10
 
-  # api:
-  #   build: { context: ., dockerfile: apps/api/Dockerfile }
-  #   env_file: .env
-  #   depends_on: { db: { condition: service_healthy } }
-  #   ports: ["3000:3000"]
+  # The API image never runs migrations (they would repeat on every cold start), so compose applies them first.
+  migrate:
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: migrate }
+    environment:
+      DATABASE_URL: *database-url
+    depends_on:
+      db: { condition: service_healthy }
 
-  # ai:
-  #   build: { context: services/ai, dockerfile: Dockerfile }
-  #   command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
-  #   env_file: .env
-  #   depends_on: { db: { condition: service_healthy } }
-  #   ports: ["8000:8000"]
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    env_file: [{ path: .env, required: false }]
+    environment:
+      DATABASE_URL: *database-url
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    ports: ["3000:3000"]
+    healthcheck:
+      # 127.0.0.1, not localhost: busybox wget resolves localhost to ::1, and the API listens on IPv4.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
-  # worker:
-  #   build: { context: services/ai, dockerfile: Dockerfile }
-  #   command: uvicorn app.worker.main:app --host 0.0.0.0 --port 8001
-  #   env_file: .env
-  #   depends_on: { db: { condition: service_healthy } }
-  #   ports: ["8001:8001"]
+  ai:
+    build: { context: services/ai }
+    command: ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: [{ path: .env, required: false }]
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["8000:8000"]
 
-  # web:
-  #   build: { context: ., dockerfile: apps/web/Dockerfile }
-  #   env_file: .env
-  #   ports: ["5173:80"]
+  worker:
+    build: { context: services/ai }
+    command: ["uvicorn", "app.worker.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    env_file: [{ path: .env, required: false }]
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["8001:8001"]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      # Baked in at build time; the browser on the host reaches the API through the published port.
+      args: { VITE_API_URL: "http://localhost:3000" }
+    ports: ["5173:80"]
 
   # Optional local LLM: docker compose --profile ollama up
   ollama:
