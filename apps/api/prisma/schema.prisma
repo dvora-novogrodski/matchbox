@@ -1,0 +1,371 @@
+// Matchbox schema. The API owns every table, including the AI-owned ones (HLD D1).
+// Enum values mirror the `as const` lists in @matchbox/shared.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+// The vector extension is created in the first migration.
+datasource db {
+  provider = "postgresql"
+}
+
+enum CareerItemKind {
+  experience
+  project
+  achievement
+  skill
+  education
+
+  @@map("career_item_kind")
+}
+
+enum StatusCategory {
+  open
+  active
+  interviewing
+  offer
+  closed
+
+  @@map("status_category")
+}
+
+enum AtsProvider {
+  comeet
+  greenhouse
+  lever
+  ashby
+  workable
+  smartrecruiters
+
+  @@map("ats_provider")
+}
+
+enum AtsDetectionStatus {
+  pending
+  detected
+  needs_confirmation
+  not_found
+  failed
+
+  @@map("ats_detection_status")
+}
+
+enum JobSource {
+  manual
+  comeet
+  greenhouse
+  lever
+  ashby
+  workable
+  smartrecruiters
+
+  @@map("job_source")
+}
+
+enum WorkMode {
+  onsite
+  hybrid
+  remote
+
+  @@map("work_mode")
+}
+
+enum MatchDecision {
+  pending
+  saved
+  skipped
+
+  @@map("match_decision")
+}
+
+enum CvSection {
+  header
+  summary
+  experience
+  projects
+  skills
+  education
+
+  @@map("cv_section")
+}
+
+enum CvChangeState {
+  proposed
+  accepted
+  rejected
+  blocked
+
+  @@map("cv_change_state")
+}
+
+enum EventType {
+  created
+  status_changed
+  note
+  email
+  follow_up
+
+  @@map("event_type")
+}
+
+model User {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firebaseUid          String    @unique @map("firebase_uid")
+  email                String
+  displayName          String?   @map("display_name")
+  /// Plan name; limits are defined in config (HLD 4.4).
+  plan                 String    @default("owner")
+  timeZone             String    @default("Asia/Jerusalem") @map("time_zone")
+  /// Curated selection and ordering of career items (F2).
+  baseCv               Json?     @map("base_cv")
+  searchPrefs          Json      @default("{}") @map("search_prefs")
+  githubRepo           String?   @map("github_repo")
+  /// Encrypted with TOKEN_ENCRYPTION_KEY; never returned to the client.
+  githubTokenEncrypted String?   @map("github_token_encrypted")
+  nextDiscoverAt       DateTime? @map("next_discover_at") @db.Timestamptz(3)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  careerItems  CareerItem[]
+  statusDefs   StatusDef[]
+  jobMatches   JobMatch[]
+  applications Application[]
+  cvVersions   CvVersion[]
+  cvChanges    CvChange[]
+  events       Event[]
+
+  @@index([nextDiscoverAt])
+  @@map("users")
+}
+
+model CareerItem {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String         @map("user_id") @db.Uuid
+  kind         CareerItemKind
+  title        String
+  organization String?
+  text         String
+  startDate    DateTime?      @map("start_date") @db.Date
+  endDate      DateTime?      @map("end_date") @db.Date
+  tech         String[]       @default([])
+  metadata     Json           @default("{}")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  embeddings CareerItemEmbedding[]
+  cvChanges  CvChange[]
+
+  @@index([userId, kind])
+  @@map("career_items")
+}
+
+/// AI-owned (A1). Written by the AI worker; re-embedded when the content hash or model changes.
+model CareerItemEmbedding {
+  careerItemId   String                     @map("career_item_id") @db.Uuid
+  embeddingModel String                     @map("embedding_model")
+  contentHash    String                     @map("content_hash")
+  embedding      Unsupported("vector(768)")
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  careerItem CareerItem @relation(fields: [careerItemId], references: [id], onDelete: Cascade)
+
+  @@id([careerItemId, embeddingModel])
+  @@map("career_item_embeddings")
+}
+
+/// Shared registry (F19), not owned by a user.
+model Company {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  careersUrl      String?            @unique @map("careers_url")
+  atsProvider     AtsProvider?       @map("ats_provider")
+  atsBoardId      String?            @map("ats_board_id")
+  detectionStatus AtsDetectionStatus @default(pending) @map("detection_status")
+  detectedAt      DateTime?          @map("detected_at") @db.Timestamptz(3)
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  jobs Job[]
+
+  @@unique([atsProvider, atsBoardId])
+  @@map("companies")
+}
+
+/// A posting, independent of any application. Shared across users; reached through job_match and application.
+model Job {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId               String?   @map("company_id") @db.Uuid
+  /// Kept even when company_id is set, for manually added jobs outside the registry.
+  companyName             String    @map("company_name")
+  source                  JobSource
+  externalId              String?   @map("external_id")
+  url                     String?
+  normalizedUrl           String?   @unique @map("normalized_url")
+  title                   String
+  location                String?
+  workMode                WorkMode? @map("work_mode")
+  description             String?
+  /// Extracted by A2; AI-written.
+  requirements            Json?
+  extractionModel         String?   @map("extraction_model")
+  extractionPromptVersion String?   @map("extraction_prompt_version")
+  postedAt                DateTime? @map("posted_at") @db.Timestamptz(3)
+  closedAt                DateTime? @map("closed_at") @db.Timestamptz(3)
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt               DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  company      Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  matches      JobMatch[]
+  applications Application[]
+
+  @@unique([source, externalId])
+  @@index([companyId])
+  @@map("jobs")
+}
+
+/// AI-owned (A3). One current match per user and job; recomputed when the input hash changes.
+model JobMatch {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String        @map("user_id") @db.Uuid
+  jobId         String        @map("job_id") @db.Uuid
+  /// 0-100, computed in code from per-requirement coverage.
+  score         Int
+  coverage      Json
+  inputHash     String        @map("input_hash")
+  model         String
+  promptVersion String        @map("prompt_version")
+  runId         String?       @map("run_id") @db.Uuid
+  decision      MatchDecision @default(pending)
+  decidedAt     DateTime?     @map("decided_at") @db.Timestamptz(3)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId, decision])
+  @@map("job_matches")
+}
+
+/// System statuses have no owner and a key; custom statuses belong to a user (F4).
+model StatusDef {
+  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?        @map("user_id") @db.Uuid
+  key       String?        @unique
+  name      String
+  /// Null means the UI uses the theme color of the category.
+  color     String?
+  position  Int
+  category  StatusCategory
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+
+  @@unique([userId, name])
+  @@map("status_defs")
+}
+
+model Application {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  jobId            String    @map("job_id") @db.Uuid
+  /// Cache of the latest status_changed event.
+  statusId         String    @map("status_id") @db.Uuid
+  recruiterName    String?   @map("recruiter_name")
+  recruiterContact String?   @map("recruiter_contact")
+  notes            String?
+  appliedAt        DateTime? @map("applied_at") @db.Timestamptz(3)
+  /// Drives follow-up reminders (F11).
+  lastActivityAt   DateTime  @default(now()) @map("last_activity_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job        Job         @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  status     StatusDef   @relation(fields: [statusId], references: [id], onDelete: Restrict)
+  cvVersions CvVersion[]
+  events     Event[]
+
+  @@unique([userId, jobId])
+  @@index([userId, statusId])
+  @@map("applications")
+}
+
+/// A CV snapshot (F3). Without a commit SHA it is a draft that tailoring changes attach to.
+model CvVersion {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  applicationId String?  @map("application_id") @db.Uuid
+  parentId      String?  @map("parent_id") @db.Uuid
+  isBase        Boolean  @default(false) @map("is_base")
+  cv            Json
+  templateId    String   @default("default") @map("template_id")
+  gitPath       String?  @map("git_path")
+  commitSha     String?  @map("commit_sha")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  parent      CvVersion?   @relation("CvVersionLineage", fields: [parentId], references: [id], onDelete: SetNull)
+  children    CvVersion[]  @relation("CvVersionLineage")
+  changes     CvChange[]
+
+  @@index([userId, applicationId])
+  @@map("cv_versions")
+}
+
+/// AI-proposed, user-decided (A4, F8). A change without evidence is blocked and cannot be accepted.
+model CvChange {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String        @map("user_id") @db.Uuid
+  cvVersionId    String        @map("cv_version_id") @db.Uuid
+  section        CvSection
+  /// Location inside the section, for example "experience[0].bullets[2]".
+  targetPath     String?       @map("target_path")
+  before         String?
+  after          String
+  evidenceItemId String?       @map("evidence_item_id") @db.Uuid
+  state          CvChangeState @default(proposed)
+  rationale      String?
+  blockedReason  String?       @map("blocked_reason")
+  model          String
+  promptVersion  String        @map("prompt_version")
+  runId          String?       @map("run_id") @db.Uuid
+  decidedAt      DateTime?     @map("decided_at") @db.Timestamptz(3)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvVersion    CvVersion   @relation(fields: [cvVersionId], references: [id], onDelete: Cascade)
+  evidenceItem CareerItem? @relation(fields: [evidenceItemId], references: [id], onDelete: SetNull)
+
+  @@index([cvVersionId])
+  @@map("cv_changes")
+}
+
+/// Append-only timeline.
+model Event {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  applicationId String    @map("application_id") @db.Uuid
+  type          EventType
+  payload       Json      @default("{}")
+  /// When it happened; differs from created_at for imported history (F13) and emails (F15).
+  occurredAt    DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, occurredAt])
+  @@map("events")
+}

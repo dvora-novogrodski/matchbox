@@ -10,6 +10,7 @@ build/
 .next/
 coverage/
 *.tsbuildinfo
+apps/api/src/generated/
 
 # Env and secrets
 .env
