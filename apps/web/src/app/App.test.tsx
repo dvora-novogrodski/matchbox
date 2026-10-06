@@ -10,7 +10,7 @@ describe('App', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ status: 'ok', service: 'api', uptimeSeconds: 1 }),
+        json: async () => ({ status: 'ok' }),
       }),
     );
     render(<App />);

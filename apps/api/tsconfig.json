@@ -13,7 +13,9 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "incremental": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
+    "isolatedModules": true,
     "types": ["node", "jest"],
     "strict": true,
     "strictPropertyInitialization": false

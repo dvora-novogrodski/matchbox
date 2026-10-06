@@ -25,15 +25,20 @@ src/
     github/       Private repo commits for CV versions
   ai-client/      Calls to the AI service (generated client) with timeouts and budget checks
   tasks/          TaskQueue interface (Cloud Tasks / local dispatcher), job status (D4)
-  health/         Health checks
-  common/         Guards, filters, request id, shared utilities
-  config/         Typed config and env overrides
-test/             E2E tests
+  common/
+    config/       Zod schema for env vars; the app fails to start on invalid config
+    prisma/       Global PrismaModule and PrismaService
+    health/       GET /health/live (no checks) and GET /health/ready (database ping)
+test/
+  setup/          Jest global setup: one pgvector Postgres container, migrated with prisma migrate deploy
+  *.e2e-spec.ts   E2E tests through Fastify inject
 ```
 
 ## Database
 
-Use the Node version in the root `.nvmrc`. Start Postgres with `docker compose up -d db`. When running the CLI from the host, point `DATABASE_URL` at `localhost` instead of the compose host `db`.
+Use the Node version in the root `.nvmrc`. Start Postgres with `docker compose up -d db`, and copy the root `.env.example` to `.env`; its `DATABASE_URL` points at `localhost` for the API and the Prisma CLI on the host.
+
+`jest.config.js` defines two projects: `unit` (`src/**/*.spec.ts`, run by `npm test`) and `e2e` (`test/**/*.e2e-spec.ts`, run by `npm run test:e2e`, needs Docker running). Running Jest on a single file, as editor test buttons do, picks the right project. Tests compile to CommonJS so that the Prisma 7 client's dynamic `import()` works in Jest.
 
 | Command | Use |
 | --- | --- |
