@@ -4,6 +4,8 @@ AI-powered job search workspace: discovery, grounded CV tailoring, and applicati
 
 Design: [Matchbox — High-Level Design](./docs/design/hld.md) and [Matchbox AI — High-Level Design](./docs/design/ai-hld.md)
 
+Conventions: [docs/conventions](./docs/conventions/README.md)
+
 ## Layout
 
 ```
@@ -17,7 +19,7 @@ packages/
   ui/           Design system: MUI with Matchbox tokens and theme. Components are added as the web app needs them.
   ai-client/    Typed TS client generated from the AI service OpenAPI spec (D5).
 infra/          Dockerfiles, GCP guardrails, helper scripts.
-docs/           Architecture notes and ADRs.
+docs/           Design docs, conventions, and ADRs.
 .github/        CI workflows, one per deployable with path filters.
 ```
 
