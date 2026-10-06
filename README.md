@@ -14,6 +14,7 @@ services/
   ai/           Python (FastAPI + LangGraph). Same codebase deploys as the AI service and the AI worker.
 packages/
   shared/       TypeScript shared types, constants and schemas (status model, CV schema, plans).
+  ui/           Design system: MUI with Matchbox tokens and theme. Components are added as the web app needs them.
   ai-client/    Typed TS client generated from the AI service OpenAPI spec (D5).
 infra/          Dockerfiles, GCP guardrails, helper scripts.
 docs/           Architecture notes and ADRs.
