@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SYSTEM_STATUSES } from '@matchbox/shared';
 import { getApiHealth } from '../lib/api/client';
 
 type ApiState = 'checking' | 'online' | 'offline';
 
 export function App() {
+  const { t } = useTranslation();
   const [api, setApi] = useState<ApiState>('checking');
 
   useEffect(() => {
@@ -19,11 +21,15 @@ export function App() {
 
   return (
     <main style={{ fontFamily: 'system-ui, sans-serif', padding: 32 }}>
-      <h1>Matchbox</h1>
+      <h1>{t('app.title')}</h1>
       <p>
-        API: <strong data-testid="api-status">{api}</strong>
+        {t('app.apiLabel')} <strong data-testid="api-status">{t(`apiState.${api}`)}</strong>
       </p>
-      <p>Pipeline statuses: {SYSTEM_STATUSES.map((s) => s.name).join(', ')}</p>
+      <p>
+        {t('app.pipelineStatuses', {
+          statuses: SYSTEM_STATUSES.map((s) => t(`statuses.${s.key}`)).join(', '),
+        })}
+      </p>
     </main>
   );
 }

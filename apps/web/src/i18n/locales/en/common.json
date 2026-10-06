@@ -1,0 +1,22 @@
+{
+  "app": {
+    "title": "Matchbox",
+    "apiLabel": "API:",
+    "pipelineStatuses": "Pipeline statuses: {{statuses}}"
+  },
+  "apiState": {
+    "checking": "checking",
+    "online": "online",
+    "offline": "offline"
+  },
+  "statuses": {
+    "saved": "Saved",
+    "applied": "Applied",
+    "screening": "Screening",
+    "technical": "Technical",
+    "hr": "HR",
+    "offer": "Offer",
+    "rejected": "Rejected",
+    "withdrawn": "Withdrawn"
+  }
+}

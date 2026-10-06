@@ -8,11 +8,23 @@ export const STATUS_CATEGORIES = [
 ] as const;
 export type StatusCategory = (typeof STATUS_CATEGORIES)[number];
 
-export interface SystemStatus {
-  key: string;
+export const SYSTEM_STATUS_KEYS = [
+  'saved',
+  'applied',
+  'screening',
+  'technical',
+  'hr',
+  'offer',
+  'rejected',
+  'withdrawn',
+] as const;
+export type SystemStatusKey = (typeof SYSTEM_STATUS_KEYS)[number];
+
+export type SystemStatus = {
+  key: SystemStatusKey;
   name: string;
   category: StatusCategory;
-}
+};
 
 export const SYSTEM_STATUSES: readonly SystemStatus[] = [
   { key: 'saved', name: 'Saved', category: 'open' },
