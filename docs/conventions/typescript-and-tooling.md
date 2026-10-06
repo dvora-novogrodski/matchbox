@@ -115,7 +115,7 @@ Every package exposes the same script names so the root can run them with `--wor
 
 ## 10. Changes needed in the current scaffold
 
-- Add the root `.prettierrc`, `.editorconfig`, `eslint.config.mjs`, `.nvmrc`, Husky, lint-staged, and commitlint.
+- Add the root `.prettierrc`, `.editorconfig`, Husky, lint-staged, and commitlint.
 - Reformat existing files from 2-space to 4-space indentation.
-- Add `lint`, `lint:ci`, and `typecheck` scripts to `apps/api`, `apps/web`, and `packages/shared`.
+- Add `format` scripts to each TypeScript workspace.
 - Give `@matchbox/shared` a build step before the API imports it.

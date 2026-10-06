@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "lint": "eslint src vite.config.ts --fix",
+    "lint:ci": "eslint src vite.config.ts --max-warnings=0",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {

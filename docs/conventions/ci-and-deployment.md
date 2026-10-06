@@ -32,14 +32,15 @@ One workflow per deployable with path filters (HLD D7), as already planned in `.
 
 | Workflow | Triggers on | Jobs |
 | --- | --- | --- |
-| `api.yml` | `apps/api/**`, `packages/shared/**`, `packages/ai-client/**` | install, `lint:ci`, `typecheck`, `test`, `test:e2e`, build image; on `master`: migrate, deploy |
-| `web.yml` | `apps/web/**`, `packages/ui/**`, `packages/shared/**` | install, `lint:ci`, `typecheck`, `test`, build; on `master`: deploy to static hosting |
-| `ai.yml` | `services/ai/**` | Defined by the Python conventions |
-| `contract.yml` | `services/ai/**`, `packages/ai-client/**` | Regenerate the AI client and fail if it differs from the committed one (D5) |
+| `api.yml` | `apps/api/**`, `packages/shared/**`, `packages/ai-client/**` | install, `lint:ci`, `typecheck`, unit tests, end-to-end tests, app build, image build |
+| `web.yml` | `apps/web/**`, `packages/ui/**`, `packages/shared/**` | install, `lint:ci`, `typecheck`, tests, static build |
+| `ai.yml` | `services/ai/**` | Ruff lint and format check, mypy, pytest with coverage, image build |
+| `contract.yml` | `services/ai/**`, `packages/ai-client/**` | M2: regenerate the AI client and fail if it differs from the committed one (D5) |
 
 Rules:
 
-- Pull requests run every check job. Deploy jobs run only on pushes to `master`.
+- Pull requests and pushes to `master` run every check job.
+- M0 does not deploy. Deployment jobs are added in M4 after the production project, registry, database, and static host are provisioned; they run only on pushes to `master`.
 - Use `actions/setup-node` with the version from `.nvmrc` and `cache: npm`.
 - Authenticate to GCP with Workload Identity Federation (`google-github-actions/auth`). No service account JSON keys in GitHub secrets.
 - Workflow files use the `.yml` extension and kebab-case job ids.

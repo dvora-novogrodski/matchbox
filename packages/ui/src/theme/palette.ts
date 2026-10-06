@@ -1,6 +1,8 @@
-import type { PaletteOptions } from '@mui/material/styles';
-import { coral, teal, warm, white } from '../tokens';
 import './augmentations';
+
+import type { PaletteOptions } from '@mui/material/styles';
+
+import { coral, teal, warm, white } from '../tokens';
 
 const { 0: _paper, ...greyScale } = warm;
 

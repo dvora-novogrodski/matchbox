@@ -43,4 +43,4 @@ For day-to-day work, run only `docker compose up -d db` and start the API (`npm 
 
 ## Milestones
 
-See section 11 of the HLD. Current: **M0 – Foundations** (monorepo, schema v1, health checks, and compose done; CI next).
+See section 11 of the HLD. **M0 – Foundations** is complete: monorepo, compose, CI, health checks, and schema v1. M1 adds the first usable, non-AI product flow.

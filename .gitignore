@@ -34,4 +34,7 @@ ollama/
 *.log
 npm-debug.log*
 *.egg-info/
+.coverage
+.mypy_cache/
 .pytest_cache/
+.ruff_cache/

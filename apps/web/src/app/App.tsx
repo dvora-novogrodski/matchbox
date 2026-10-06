@@ -1,6 +1,7 @@
+import { SYSTEM_STATUSES } from '@matchbox/shared';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SYSTEM_STATUSES } from '@matchbox/shared';
+
 import { getApiHealth } from '../lib/api/client';
 
 type ApiState = 'checking' | 'online' | 'offline';

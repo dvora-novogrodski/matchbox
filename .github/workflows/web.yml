@@ -1,0 +1,47 @@
+name: Web CI
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/web.yml'
+      - '.nvmrc'
+      - 'apps/web/**'
+      - 'eslint.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'packages/shared/**'
+      - 'packages/ui/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/web.yml'
+      - '.nvmrc'
+      - 'apps/web/**'
+      - 'eslint.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'packages/shared/**'
+      - 'packages/ui/**'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint:ci -w @matchbox/web -w @matchbox/ui -w @matchbox/shared
+      - name: Typecheck
+        run: npm run typecheck -w @matchbox/web -w @matchbox/ui -w @matchbox/shared
+      - name: Test
+        run: npm test -w @matchbox/web
+      - name: Build
+        run: npm run build -w @matchbox/web

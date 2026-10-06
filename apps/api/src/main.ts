@@ -1,7 +1,9 @@
 import 'reflect-metadata';
+
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
+
 import { AppModule } from './app.module';
 import type { EnvironmentVariables } from './common/config/env.validation';
 

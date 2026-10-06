@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
 import { App } from './App';
 
 describe('App', () => {
@@ -10,7 +11,7 @@ describe('App', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ status: 'ok' }),
+        json: () => Promise.resolve({ status: 'ok' }),
       }),
     );
     render(<App />);

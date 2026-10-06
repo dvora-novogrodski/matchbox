@@ -15,6 +15,9 @@ python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/uvicorn app.api.main:app --port 8000      # AI service
 .venv/bin/uvicorn app.worker.main:app --port 8001   # AI worker
 curl localhost:8000/health
+.venv/bin/ruff check app tests
+.venv/bin/ruff format --check app tests
+.venv/bin/mypy app tests
 .venv/bin/pytest
 ```
 

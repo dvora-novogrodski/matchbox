@@ -1,4 +1,5 @@
 import type { TypographyVariantsOptions } from '@mui/material/styles';
+
 import { fontFamily } from '../tokens';
 
 // Variants not listed keep MUI's defaults.

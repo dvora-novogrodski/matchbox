@@ -1,0 +1,48 @@
+name: AI CI
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ai.yml'
+      - 'services/ai/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/ai.yml'
+      - 'services/ai/**'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/ai
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: services/ai/pyproject.toml
+      - run: pip install --editable '.[dev]'
+      - name: Lint
+        run: ruff check app tests
+      - name: Format
+        run: ruff format --check app tests
+      - name: Typecheck
+        run: mypy app tests
+      - name: Test
+        run: pytest --cov=app --cov-report=term-missing
+
+  image:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build AI image
+        run: docker build --tag matchbox-ai:ci services/ai

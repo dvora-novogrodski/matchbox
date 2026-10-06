@@ -1,7 +1,9 @@
 import '@fontsource-variable/dm-sans';
+
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import type { ReactNode } from 'react';
+
 import { createMatchboxTheme } from './create-theme';
 
 export type ColorScheme = 'auto' | 'light' | 'dark';
