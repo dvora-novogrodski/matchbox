@@ -21,7 +21,7 @@ Read the convention document for the area you are changing before editing it:
 
 ## Git
 
-Follow the [git-workflow skill](./.cursor/skills/git-workflow/SKILL.md): one branch per feature, Conventional Commits, squash into `master`. Commit only when asked.
+Follow the [git-workflow skill](./.cursor/skills/git-workflow/SKILL.md): one branch per feature, Conventional Commits, exactly one commit per feature on `master` (never squash different features together). Commit only when asked.
 
 ## Safety
 

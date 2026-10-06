@@ -11,6 +11,6 @@ These documents define how Matchbox TypeScript code is written. The Python AI se
 | [testing.md](./testing.md) | Unit and e2e tests for API, web, and UI |
 | [ci-and-deployment.md](./ci-and-deployment.md) | Dockerfiles, GitHub Actions, Cloud Run, environments |
 
-Git workflow (branches, commits, squash merges) is defined in the [git-workflow skill](../../.cursor/skills/git-workflow/SKILL.md).
+Git workflow (branches, commits, one commit per feature on `master`) is defined in the [git-workflow skill](../../.cursor/skills/git-workflow/SKILL.md).
 
 When a rule and existing code disagree, the rule wins and the code gets fixed in the next change that touches it. Each document ends with the changes the current scaffold still needs.
