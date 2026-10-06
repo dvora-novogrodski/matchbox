@@ -1,6 +1,6 @@
 # Matchbox: High-Level Design
 
-**Author:** Dvora Novogrodski **Status:** Draft v0.3 **Date:** October 2026 **Scope:** Product features, system architecture, data model, and the integration points for the AI layer. The internal design of the AI layer (graphs, prompts, retrieval, evals) is covered in a separate document, *Matchbox AI HLD*.
+**Author:** Dvora Novogrodski **Status:** Draft v0.3 **Date:** October 2026 **Scope:** Product features, system architecture, data model, and the integration points for the AI layer. The internal design of the AI layer (graphs, prompts, retrieval, evals) is covered in a separate document, [Matchbox AI HLD](./ai-hld.md).
 
 ---
 
@@ -334,7 +334,7 @@ sequenceDiagram
 
 ## 8. AI integration points
 
-This section defines where the AI layer plugs into the product and the contract at each boundary. How each capability works internally belongs in the *Matchbox AI HLD*.
+This section defines where the AI layer plugs into the product and the contract at each boundary. How each capability works internally belongs in the [Matchbox AI HLD](./ai-hld.md).
 
 | # | Capability | Triggered by | Mode | Input | Output | Human checkpoint | Without AI |
 | --- | --- | --- | --- | --- | --- | --- | --- |

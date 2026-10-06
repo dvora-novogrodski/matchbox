@@ -2,7 +2,7 @@
 
 AI-powered job search workspace: discovery, grounded CV tailoring, and application tracking.
 
-Design: [Matchbox — High-Level Design](./Matchbox%20—%20High-Level%20Design.md)
+Design: [Matchbox — High-Level Design](./docs/design/hld.md) and [Matchbox AI — High-Level Design](./docs/design/ai-hld.md)
 
 ## Layout
 

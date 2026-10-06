@@ -5,7 +5,7 @@ Python, FastAPI, LangGraph. One codebase, two deployments:
 - **AI service** (`app.api.main`): synchronous operations (match, tailor, extract).
 - **AI worker** (`app.worker.main`): async tasks delivered over HTTP (discover, indexing, ATS detection).
 
-Internal AI design lives in the separate *Matchbox AI HLD*.
+Internal AI design lives in the [Matchbox AI HLD](../../docs/design/ai-hld.md).
 
 ## Run locally
 

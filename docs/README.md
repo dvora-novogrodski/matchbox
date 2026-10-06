@@ -1,4 +1,4 @@
 # docs
 
 - `adr/` – architecture decision records (start from HLD section 12 decisions log).
-- Design: [High-Level Design](../Matchbox%20—%20High-Level%20Design.md). The separate _Matchbox AI HLD_ covers AI internals.
+- `design/` – [High-Level Design](./design/hld.md) for the product and architecture, and [AI High-Level Design](./design/ai-hld.md) for the AI layer internals.
