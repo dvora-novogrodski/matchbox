@@ -38,6 +38,7 @@ docker compose --profile ollama up   # optional local LLM
 | AI service | http://localhost:8000/health |
 | AI worker | http://localhost:8001/health |
 | Postgres | `localhost:5432` |
+| Firebase Auth emulator | http://localhost:9099 |
 
 For day-to-day work, run only `docker compose up -d db` and start the API (`npm run start:dev -w @matchbox/api`) and the web app (`npm run dev -w @matchbox/web`) on the host. Stop the compose `api` and `web` services first, since they use the same ports.
 

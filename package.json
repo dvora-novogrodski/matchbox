@@ -27,7 +27,8 @@
     "@nestjs/core": false,
     "cpu-features": false,
     "protobufjs": false,
-    "ssh2": false
+    "ssh2": false,
+    "@firebase/util": false
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

@@ -1,13 +1,14 @@
 {
   "app": {
     "title": "Matchbox",
-    "apiLabel": "API:",
-    "pipelineStatuses": "Pipeline statuses: {{statuses}}"
+    "signedInAs": "Signed in as {{email}}"
   },
-  "apiState": {
-    "checking": "checking",
-    "online": "online",
-    "offline": "offline"
+  "actions": {
+    "signOut": "Sign out"
+  },
+  "errors": {
+    "profileUnavailable": "Your profile could not be loaded. Please try again.",
+    "signOutFailed": "You could not be signed out. Please try again."
   },
   "statuses": {
     "saved": "Saved",

@@ -1,11 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import { HealthCheck, HealthCheckService, PrismaHealthIndicator } from '@nestjs/terminus';
 
+import { Public } from '../decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 
 const DATABASE_PING_TIMEOUT_MS = 3000;
 
-@Controller('health')
+@Public()
+@Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
   constructor(
     private readonly health: HealthCheckService,

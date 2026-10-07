@@ -25,6 +25,7 @@ module.exports = {
       displayName: 'e2e',
       rootDir: path.join(__dirname, 'test'),
       testRegex: '.*\\.e2e-spec\\.ts$',
+      setupFiles: ['<rootDir>/setup/jest.setup.ts'],
       globalSetup: '<rootDir>/setup/global-setup.ts',
       globalTeardown: '<rootDir>/setup/global-teardown.ts',
     },

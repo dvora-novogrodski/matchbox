@@ -13,15 +13,24 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@firebase/app": "^0.16.2",
+    "@firebase/auth": "^1.13.6",
+    "@hookform/resolvers": "^5.9.1",
     "@matchbox/shared": "*",
+    "@tanstack/react-query": "^5.104.1",
+    "axios": "^1.20.0",
     "i18next": "^26.4.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-i18next": "^17.0.15"
+    "react-hook-form": "^7.89.0",
+    "react-i18next": "^17.0.15",
+    "react-router-dom": "^7.18.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
+    "@types/node": "^24.19.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^4.3.1",

@@ -8,6 +8,7 @@ describe('validate', () => {
 
     expect(env.API_PORT).toBe(3000);
     expect(env.WEB_ORIGIN).toEqual(['http://localhost:5173']);
+    expect(env.FIREBASE_PROJECT_ID).toBe('demo-matchbox');
   });
 
   it('should split WEB_ORIGIN into trimmed origins', () => {
@@ -20,6 +21,12 @@ describe('validate', () => {
     const env = validate({ DATABASE_URL, API_PORT: '8080' });
 
     expect(env.API_PORT).toBe(8080);
+  });
+
+  it('should use the local Firebase project when FIREBASE_PROJECT_ID is empty', () => {
+    const env = validate({ DATABASE_URL, FIREBASE_PROJECT_ID: '' });
+
+    expect(env.FIREBASE_PROJECT_ID).toBe('demo-matchbox');
   });
 
   it('should throw when DATABASE_URL is missing', () => {

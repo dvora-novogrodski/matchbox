@@ -1,6 +1,7 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 
+import { AppConfig } from '../src/app.config';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/common/prisma/prisma.service';
 
@@ -12,6 +13,7 @@ describe('Health (e2e)', () => {
       imports: [AppModule],
     }).compile();
     app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
+    app.get(AppConfig).configure(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });

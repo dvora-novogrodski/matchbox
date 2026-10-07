@@ -1,36 +1,35 @@
-import { SYSTEM_STATUSES } from '@matchbox/shared';
-import { useEffect, useState } from 'react';
+import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@matchbox/ui';
 import { useTranslation } from 'react-i18next';
-
-import { getApiHealth } from '../lib/api/client';
-
-type ApiState = 'checking' | 'online' | 'offline';
+import { useCurrentUser, useSignOut } from 'src/features/auth';
 
 export function App() {
   const { t } = useTranslation();
-  const [api, setApi] = useState<ApiState>('checking');
-
-  useEffect(() => {
-    const controller = new AbortController();
-    getApiHealth(controller.signal)
-      .then(() => setApi('online'))
-      .catch((err: unknown) => {
-        if ((err as Error).name !== 'AbortError') setApi('offline');
-      });
-    return () => controller.abort();
-  }, []);
+  const currentUser = useCurrentUser();
+  const signOut = useSignOut();
 
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: 32 }}>
-      <h1>{t('app.title')}</h1>
-      <p>
-        {t('app.apiLabel')} <strong data-testid="api-status">{t(`apiState.${api}`)}</strong>
-      </p>
-      <p>
-        {t('app.pipelineStatuses', {
-          statuses: SYSTEM_STATUSES.map((s) => t(`statuses.${s.key}`)).join(', '),
-        })}
-      </p>
-    </main>
+    <Box component="main" sx={{ mx: 'auto', maxWidth: 960, p: 4 }}>
+      <Stack spacing={3}>
+        <Typography component="h1" variant="h3">
+          {t('app.title')}
+        </Typography>
+        {currentUser.isPending ? (
+          <CircularProgress data-test="app-user-loading" />
+        ) : currentUser.isError ? (
+          <Alert severity="error">{t('errors.profileUnavailable')}</Alert>
+        ) : (
+          <Typography>{t('app.signedInAs', { email: currentUser.data.email })}</Typography>
+        )}
+        {signOut.isError ? <Alert severity="error">{t('errors.signOutFailed')}</Alert> : null}
+        <Button
+          data-test="app-sign-out-button"
+          disabled={signOut.isPending}
+          onClick={() => signOut.mutate()}
+          variant="outlined"
+        >
+          {t('actions.signOut')}
+        </Button>
+      </Stack>
+    </Box>
   );
 }
