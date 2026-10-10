@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "prebuild": "npm run build -w @matchbox/shared",
     "build": "nest build",
+    "prestart": "npm run build -w @matchbox/shared",
     "start": "nest start",
+    "prestart:dev": "npm run build -w @matchbox/shared",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "lint": "eslint src test --fix",
