@@ -141,3 +141,4 @@ export type CreateProject = z.infer<typeof CreateProjectSchema>;
 export type UpdateProject = z.infer<typeof UpdateProjectSchema>;
 export type CreateEducation = z.infer<typeof CreateEducationSchema>;
 export type UpdateEducation = z.infer<typeof UpdateEducationSchema>;
+export type ReplaceProfileSkillsResponse = z.infer<typeof ReplaceProfileSkillsResponseSchema>;
