@@ -18,7 +18,7 @@ export class AppConfig {
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
     app.enableCors({
       origin: this.config.get('WEB_ORIGIN', { infer: true }),
-      methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+      methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     });
     app.enableShutdownHooks();
   }
