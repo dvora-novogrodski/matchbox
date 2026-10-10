@@ -40,9 +40,8 @@
   },
   "skills": {
     "edit": "Edit skills",
-    "label": "Skills",
-    "save": "Save skills",
-    "cancel": "Cancel"
+    "done": "Done",
+    "placeholder": "Type a skill and press Enter"
   },
   "sections": {
     "experience": "Experience",

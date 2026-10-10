@@ -39,10 +39,10 @@ describe('ProfilePage', () => {
         const user = userEvent.setup();
 
         renderWithProviders(<ProfilePage />);
-        await user.click(await screen.findByRole('button', { name: 'Edit skills' }));
-        const input = screen.getByLabelText('Skills');
-        await user.type(input, 'TypeScript{enter}');
-        await user.click(screen.getByRole('button', { name: 'Save skills' }));
+        await user.click(await screen.findByTestId('profile-skills-add-button'));
+        const input = within(screen.getByTestId('profile-skills-input')).getByRole('textbox');
+        await user.type(input, 'TypeScript');
+        await user.keyboard('{Enter}');
 
         await waitFor(() => expect(screen.getByText('TypeScript')).toBeInTheDocument());
     });
