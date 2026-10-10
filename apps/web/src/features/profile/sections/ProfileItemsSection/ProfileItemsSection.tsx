@@ -1,11 +1,17 @@
-import type {
-    CreateEducation,
-    CreateExperience,
-    CreateProject,
-    ProfileBulletInput,
-    UpdateEducation,
-    UpdateExperience,
-    UpdateProject,
+import {
+    CreateEducationSchema,
+    CreateExperienceSchema,
+    CreateProjectSchema,
+    type CreateEducation,
+    type CreateExperience,
+    type CreateProject,
+    type ProfileBulletInput,
+    UpdateEducationSchema,
+    UpdateExperienceSchema,
+    UpdateProjectSchema,
+    type UpdateEducation,
+    type UpdateExperience,
+    type UpdateProject,
 } from '@matchbox/shared';
 import {
     Alert,
@@ -24,6 +30,8 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { firstZodIssueMessage } from '../../profile-form-validation';
+import type { ProfileMutateHandlers } from '../../profile-mutate.types';
 import { BulletEditor } from '../../components/BulletEditor';
 import { formatItemSubtitle, ProfileItemCard } from '../../components/ProfileItemCard';
 
@@ -46,7 +54,6 @@ type EducationItem = BaseItem & {
 };
 
 type ProfileItemsSectionCommonProps = {
-    isError: boolean;
     deletingId?: string;
     onDelete: (itemId: string, title: string) => void;
     isPending: boolean;
@@ -56,20 +63,20 @@ type ProfileItemsSectionProps =
     | (ProfileItemsSectionCommonProps & {
           kind: 'experience';
           items: ExperienceLikeItem[];
-          onCreate: (input: CreateExperience) => void;
-          onUpdate: (itemId: string, input: UpdateExperience) => void;
+          onCreate: (input: CreateExperience, handlers?: ProfileMutateHandlers) => void;
+          onUpdate: (itemId: string, input: UpdateExperience, handlers?: ProfileMutateHandlers) => void;
       })
     | (ProfileItemsSectionCommonProps & {
           kind: 'project';
           items: ExperienceLikeItem[];
-          onCreate: (input: CreateProject) => void;
-          onUpdate: (itemId: string, input: UpdateProject) => void;
+          onCreate: (input: CreateProject, handlers?: ProfileMutateHandlers) => void;
+          onUpdate: (itemId: string, input: UpdateProject, handlers?: ProfileMutateHandlers) => void;
       })
     | (ProfileItemsSectionCommonProps & {
           kind: 'education';
           items: EducationItem[];
-          onCreate: (input: CreateEducation) => void;
-          onUpdate: (itemId: string, input: UpdateEducation) => void;
+          onCreate: (input: CreateEducation, handlers?: ProfileMutateHandlers) => void;
+          onUpdate: (itemId: string, input: UpdateEducation, handlers?: ProfileMutateHandlers) => void;
       });
 
 function toMonthValue(value: string | null): string {
@@ -83,7 +90,6 @@ function toDateValue(value: string): string | null {
 export function ProfileItemsSection({
     kind,
     items,
-    isError,
     deletingId,
     onCreate,
     onUpdate,
@@ -102,13 +108,14 @@ export function ProfileItemsSection({
     const [endDate, setEndDate] = useState<string | null>(null);
     const [tech, setTech] = useState<string[]>([]);
     const [bullets, setBullets] = useState<ProfileBulletInput[]>([]);
+    const [dialogError, setDialogError] = useState<string | null>(null);
 
     const sectionTitle = t(`sections.${kind === 'project' ? 'project' : kind}`);
     const isEducation = kind === 'education';
-    const supportsDates = true;
     const supportsTech = kind === 'experience' || kind === 'project';
+    const currentLabelKey = `form.current.${kind}` as 'form.current.experience' | 'form.current.project' | 'form.current.education';
 
-    const openCreate = () => {
+    const resetForm = () => {
         setEditingId(undefined);
         setTitle('');
         setOrganization('');
@@ -119,10 +126,16 @@ export function ProfileItemsSection({
         setTech([]);
         setBullets([]);
         setIsCurrent(false);
+        setDialogError(null);
+    };
+
+    const openCreate = () => {
+        resetForm();
         setDialogOpen(true);
     };
 
     const openEdit = (item: ExperienceLikeItem | EducationItem) => {
+        setDialogError(null);
         setEditingId(item.id);
         if (isEducation) {
             const education = item as EducationItem;
@@ -143,7 +156,7 @@ export function ProfileItemsSection({
 
     const closeDialog = () => {
         setDialogOpen(false);
-        setEditingId(undefined);
+        resetForm();
     };
 
     const normalizedBullets = () =>
@@ -154,7 +167,13 @@ export function ProfileItemsSection({
                 text: bullet.text.trim(),
             }));
 
+    const mutateHandlers: ProfileMutateHandlers = {
+        onSuccess: () => closeDialog(),
+        onError: () => setDialogError(t('errors.saveFailed')),
+    };
+
     const submit = () => {
+        setDialogError(null);
         if (isEducation) {
             const payload = {
                 degree: degree.trim(),
@@ -164,26 +183,65 @@ export function ProfileItemsSection({
                 bullets: normalizedBullets(),
             };
             if (editingId) {
-                onUpdate(editingId, payload);
+                const parsed = UpdateEducationSchema.safeParse(payload);
+                if (!parsed.success) {
+                    setDialogError(firstZodIssueMessage(parsed.error));
+                    return;
+                }
+                onUpdate(editingId, parsed.data, mutateHandlers);
             } else {
-                onCreate(payload);
+                const parsed = CreateEducationSchema.safeParse(payload);
+                if (!parsed.success) {
+                    setDialogError(firstZodIssueMessage(parsed.error));
+                    return;
+                }
+                onCreate(parsed.data, mutateHandlers);
             }
-        } else {
-            const payload = {
-                title: title.trim(),
-                organization: organization.trim() || null,
-                startDate,
-                endDate: isCurrent ? null : endDate,
-                tech,
-                bullets: normalizedBullets(),
-            };
-            if (editingId) {
-                onUpdate(editingId, payload);
-            } else {
-                onCreate(payload);
-            }
+            return;
         }
-        closeDialog();
+
+        const payload = {
+            title: title.trim(),
+            organization: organization.trim() || null,
+            startDate,
+            endDate: isCurrent ? null : endDate,
+            tech,
+            bullets: normalizedBullets(),
+        };
+        if (kind === 'experience') {
+            if (editingId) {
+                const parsed = UpdateExperienceSchema.safeParse(payload);
+                if (!parsed.success) {
+                    setDialogError(firstZodIssueMessage(parsed.error));
+                    return;
+                }
+                onUpdate(editingId, parsed.data, mutateHandlers);
+            } else {
+                const parsed = CreateExperienceSchema.safeParse(payload);
+                if (!parsed.success) {
+                    setDialogError(firstZodIssueMessage(parsed.error));
+                    return;
+                }
+                onCreate(parsed.data, mutateHandlers);
+            }
+            return;
+        }
+
+        if (editingId) {
+            const parsed = UpdateProjectSchema.safeParse(payload);
+            if (!parsed.success) {
+                setDialogError(firstZodIssueMessage(parsed.error));
+                return;
+            }
+            onUpdate(editingId, parsed.data, mutateHandlers);
+        } else {
+            const parsed = CreateProjectSchema.safeParse(payload);
+            if (!parsed.success) {
+                setDialogError(firstZodIssueMessage(parsed.error));
+                return;
+            }
+            onCreate(parsed.data, mutateHandlers);
+        }
     };
 
     return (
@@ -230,80 +288,77 @@ export function ProfileItemsSection({
                     <DialogTitle>{editingId ? t('form.editTitle') : t(`form.addTitle.${kind}`)}</DialogTitle>
                     <DialogContent>
                         <Stack spacing={2}>
-                        {isError ? <Alert severity="error">{t('errors.saveFailed')}</Alert> : null}
-                        {isEducation ? (
-                            <>
-                                <TextField
-                                    dir="auto"
-                                    label={t('form.degree')}
-                                    onChange={(event) => setDegree(event.target.value)}
-                                    required
-                                    value={degree}
-                                />
-                                <TextField
-                                    dir="auto"
-                                    label={t('form.institution')}
-                                    onChange={(event) => setInstitution(event.target.value)}
-                                    value={institution}
-                                />
-                            </>
-                        ) : (
-                            <>
-                                <TextField
-                                    dir="auto"
-                                    label={t('form.title')}
-                                    onChange={(event) => setTitle(event.target.value)}
-                                    required
-                                    value={title}
-                                />
-                                <TextField
-                                    dir="auto"
-                                    label={t('form.organization')}
-                                    onChange={(event) => setOrganization(event.target.value)}
-                                    value={organization}
-                                />
-                            </>
-                        )}
-                        {supportsDates ? (
-                            <>
-                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                            {dialogError ? <Alert severity="error">{dialogError}</Alert> : null}
+                            {isEducation ? (
+                                <>
                                     <TextField
-                                        label={t('form.startDate')}
-                                        onChange={(event) => setStartDate(toDateValue(event.target.value))}
-                                        slotProps={{ inputLabel: { shrink: true } }}
-                                        type="month"
-                                        value={toMonthValue(startDate)}
+                                        dir="auto"
+                                        label={t('form.degree')}
+                                        onChange={(event) => setDegree(event.target.value)}
+                                        required
+                                        value={degree}
                                     />
                                     <TextField
-                                        disabled={isCurrent}
-                                        label={t('form.endDate')}
-                                        onChange={(event) => setEndDate(toDateValue(event.target.value))}
-                                        slotProps={{ inputLabel: { shrink: true } }}
-                                        type="month"
-                                        value={toMonthValue(endDate)}
+                                        dir="auto"
+                                        label={t('form.institution')}
+                                        onChange={(event) => setInstitution(event.target.value)}
+                                        value={institution}
                                     />
-                                </Stack>
-                                {kind === 'experience' ? (
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox checked={isCurrent} onChange={(event) => setIsCurrent(event.target.checked)} />
-                                        }
-                                        label={t('form.currentRole')}
+                                </>
+                            ) : (
+                                <>
+                                    <TextField
+                                        dir="auto"
+                                        label={t('form.title')}
+                                        onChange={(event) => setTitle(event.target.value)}
+                                        required
+                                        value={title}
                                     />
-                                ) : null}
-                            </>
-                        ) : null}
-                        {supportsTech ? (
-                            <Autocomplete
-                                freeSolo
-                                multiple
-                                onChange={(_event, value) => setTech(value)}
-                                options={[]}
-                                renderInput={(params) => <TextField {...params} label={t('form.tech')} />}
-                                value={tech}
+                                    <TextField
+                                        dir="auto"
+                                        label={t('form.organization')}
+                                        onChange={(event) => setOrganization(event.target.value)}
+                                        value={organization}
+                                    />
+                                </>
+                            )}
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                <TextField
+                                    label={t('form.startDate')}
+                                    onChange={(event) => setStartDate(toDateValue(event.target.value))}
+                                    slotProps={{ inputLabel: { shrink: true } }}
+                                    type="month"
+                                    value={toMonthValue(startDate)}
+                                />
+                                <TextField
+                                    disabled={isCurrent}
+                                    label={t('form.endDate')}
+                                    onChange={(event) => setEndDate(toDateValue(event.target.value))}
+                                    slotProps={{ inputLabel: { shrink: true } }}
+                                    type="month"
+                                    value={toMonthValue(endDate)}
+                                />
+                            </Stack>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={isCurrent}
+                                        onChange={(event) => setIsCurrent(event.target.checked)}
+                                    />
+                                }
+                                label={t(currentLabelKey)}
                             />
-                        ) : null}
-                        <BulletEditor bullets={bullets} onChange={setBullets} />
+                            {supportsTech ? (
+                                <Autocomplete
+                                    freeSolo
+                                    multiple
+                                    onChange={(_event, value) => setTech(value)}
+                                    options={[]}
+                                    renderInput={(params) => <TextField {...params} label={t('form.tech')} />}
+                                    value={tech}
+                                />
+                            ) : null}
+                            <BulletEditor bullets={bullets} onChange={setBullets} />
                         </Stack>
                     </DialogContent>
                     <DialogActions>

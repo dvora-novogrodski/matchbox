@@ -55,38 +55,50 @@ export function ProfilePage() {
                     <Stack spacing={2}>
                         <Card variant="outlined">
                             <Box sx={{ p: 3 }}>
-                                <ProfileItemsSection
-                                    deletingId={deleteExperience.isPending ? deleteExperience.variables : undefined}
-                                    isError={createExperience.isError || updateExperience.isError}
-                                    isPending={createExperience.isPending || updateExperience.isPending}
-                                    items={profile.data.experience}
-                                    kind="experience"
-                                    onCreate={(input) => createExperience.mutate(input)}
-                                    onDelete={(itemId, title) => {
-                                        if (confirmDelete(title)) {
-                                            deleteExperience.mutate(itemId);
+                                <Stack spacing={2}>
+                                    {deleteExperience.isError ? (
+                                        <Alert severity="error">{t('errors.deleteFailed')}</Alert>
+                                    ) : null}
+                                    <ProfileItemsSection
+                                        deletingId={deleteExperience.isPending ? deleteExperience.variables : undefined}
+                                        isPending={createExperience.isPending || updateExperience.isPending}
+                                        items={profile.data.experience}
+                                        kind="experience"
+                                        onCreate={(input, handlers) => createExperience.mutate(input, handlers)}
+                                        onDelete={(itemId, title) => {
+                                            if (confirmDelete(title)) {
+                                                deleteExperience.mutate(itemId);
+                                            }
+                                        }}
+                                        onUpdate={(itemId, input, handlers) =>
+                                            updateExperience.mutate({ itemId, input }, handlers)
                                         }
-                                    }}
-                                    onUpdate={(itemId, input) => updateExperience.mutate({ itemId, input })}
-                                />
+                                    />
+                                </Stack>
                             </Box>
                         </Card>
                         <Card variant="outlined">
                             <Box sx={{ p: 3 }}>
-                                <ProfileItemsSection
-                                    deletingId={deleteProject.isPending ? deleteProject.variables : undefined}
-                                    isError={createProject.isError || updateProject.isError}
-                                    isPending={createProject.isPending || updateProject.isPending}
-                                    items={profile.data.projects}
-                                    kind="project"
-                                    onCreate={(input) => createProject.mutate(input)}
-                                    onDelete={(itemId, title) => {
-                                        if (confirmDelete(title)) {
-                                            deleteProject.mutate(itemId);
+                                <Stack spacing={2}>
+                                    {deleteProject.isError ? (
+                                        <Alert severity="error">{t('errors.deleteFailed')}</Alert>
+                                    ) : null}
+                                    <ProfileItemsSection
+                                        deletingId={deleteProject.isPending ? deleteProject.variables : undefined}
+                                        isPending={createProject.isPending || updateProject.isPending}
+                                        items={profile.data.projects}
+                                        kind="project"
+                                        onCreate={(input, handlers) => createProject.mutate(input, handlers)}
+                                        onDelete={(itemId, title) => {
+                                            if (confirmDelete(title)) {
+                                                deleteProject.mutate(itemId);
+                                            }
+                                        }}
+                                        onUpdate={(itemId, input, handlers) =>
+                                            updateProject.mutate({ itemId, input }, handlers)
                                         }
-                                    }}
-                                    onUpdate={(itemId, input) => updateProject.mutate({ itemId, input })}
-                                />
+                                    />
+                                </Stack>
                             </Box>
                         </Card>
                         <Card variant="outlined">
@@ -96,20 +108,26 @@ export function ProfilePage() {
                         </Card>
                         <Card variant="outlined">
                             <Box sx={{ p: 3 }}>
-                                <ProfileItemsSection
-                                    deletingId={deleteEducation.isPending ? deleteEducation.variables : undefined}
-                                    isError={createEducation.isError || updateEducation.isError}
-                                    isPending={createEducation.isPending || updateEducation.isPending}
-                                    items={profile.data.education}
-                                    kind="education"
-                                    onCreate={(input) => createEducation.mutate(input)}
-                                    onDelete={(itemId, title) => {
-                                        if (confirmDelete(title)) {
-                                            deleteEducation.mutate(itemId);
+                                <Stack spacing={2}>
+                                    {deleteEducation.isError ? (
+                                        <Alert severity="error">{t('errors.deleteFailed')}</Alert>
+                                    ) : null}
+                                    <ProfileItemsSection
+                                        deletingId={deleteEducation.isPending ? deleteEducation.variables : undefined}
+                                        isPending={createEducation.isPending || updateEducation.isPending}
+                                        items={profile.data.education}
+                                        kind="education"
+                                        onCreate={(input, handlers) => createEducation.mutate(input, handlers)}
+                                        onDelete={(itemId, title) => {
+                                            if (confirmDelete(title)) {
+                                                deleteEducation.mutate(itemId);
+                                            }
+                                        }}
+                                        onUpdate={(itemId, input, handlers) =>
+                                            updateEducation.mutate({ itemId, input }, handlers)
                                         }
-                                    }}
-                                    onUpdate={(itemId, input) => updateEducation.mutate({ itemId, input })}
-                                />
+                                    />
+                                </Stack>
                             </Box>
                         </Card>
                     </Stack>

@@ -1,5 +1,6 @@
 import type { UpdateEducation, UpdateExperience, UpdateProject } from '@matchbox/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 
 import {
     createEducation,
@@ -104,15 +105,29 @@ export function useDeleteEducation() {
     });
 }
 
+type SkillsReplaceContext = {
+    version: number;
+};
+
 export function useReplaceProfileSkills() {
     const queryClient = useQueryClient();
+    const latestSaveVersionRef = useRef(0);
+
     return useMutation({
         mutationFn: replaceProfileSkills,
-        onSuccess: (data) => {
+        scope: { id: 'profile-skills-replace' },
+        onMutate: () => {
+            const version = ++latestSaveVersionRef.current;
+            return { version } satisfies SkillsReplaceContext;
+        },
+        onSuccess: (data, _names, context) => {
+            const saveContext = context as SkillsReplaceContext | undefined;
+            if (!saveContext || saveContext.version < latestSaveVersionRef.current) {
+                return;
+            }
             queryClient.setQueryData(profileKeys.detail(), (profile) =>
                 profile ? { ...profile, skills: data.skills } : profile,
             );
-            return invalidateProfile(queryClient);
         },
     });
 }

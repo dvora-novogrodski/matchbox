@@ -20,7 +20,11 @@
     "organization": "Organization",
     "startDate": "Start month",
     "endDate": "End month",
-    "currentRole": "I currently work here",
+    "current": {
+      "experience": "I currently work here",
+      "project": "Ongoing",
+      "education": "I'm currently studying here"
+    },
     "tech": "Technologies",
     "description": "Description",
     "descriptionHint": "Write one bullet per line.",
