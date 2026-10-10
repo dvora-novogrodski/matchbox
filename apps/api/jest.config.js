@@ -7,7 +7,12 @@ const shared = {
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: { module: 'commonjs', moduleResolution: 'node10' } }],
   },
-  moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
+  moduleNameMapper: {
+    // The package "require" export points at dist, which CI has not built. Load the
+    // TypeScript source so ts-jest compiles it with the rest of the tests.
+    '^@matchbox/shared$': '<rootDir>/../../../packages/shared/src/index.ts',
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
   testEnvironment: 'node',
 };
 
