@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import type {
     CreateEducation,
     CreateExperience,
@@ -12,7 +11,7 @@ import type {
     UpdateExperience,
     UpdateProject,
 } from '@matchbox/shared';
-import { dedupeSkillNames } from './profile-skill.utils';
+import { Injectable } from '@nestjs/common';
 
 import { ProfileItemNotFoundError } from './profile.errors';
 import {
@@ -29,6 +28,7 @@ import {
     toReplaceSkillsResponse,
 } from './profile.mapper';
 import { ProfileRepository } from './profile.repository';
+import { dedupeSkillNames } from './profile-skill.utils';
 
 @Injectable()
 export class ProfileService {

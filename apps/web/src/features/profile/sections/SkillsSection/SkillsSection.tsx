@@ -1,6 +1,6 @@
-import { Alert, Box, Button, Chip, Stack, TextField, Typography } from '@matchbox/ui';
-import { PROFILE_LIMITS } from '@matchbox/shared';
 import type { ProfileSkill } from '@matchbox/shared';
+import { PROFILE_LIMITS } from '@matchbox/shared';
+import { Alert, Box, Button, Chip, Stack, TextField, Typography } from '@matchbox/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

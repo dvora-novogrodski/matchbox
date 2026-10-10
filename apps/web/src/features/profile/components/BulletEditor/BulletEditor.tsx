@@ -1,5 +1,5 @@
-import { Button, Stack, TextField } from '@matchbox/ui';
 import type { ProfileBulletInput } from '@matchbox/shared';
+import { Button, Stack, TextField } from '@matchbox/ui';
 import { useTranslation } from 'react-i18next';
 
 type BulletEditorProps = {

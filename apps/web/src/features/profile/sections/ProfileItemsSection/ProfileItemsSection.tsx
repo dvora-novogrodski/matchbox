@@ -1,17 +1,17 @@
 import {
-    CreateEducationSchema,
-    CreateExperienceSchema,
-    CreateProjectSchema,
     type CreateEducation,
+    CreateEducationSchema,
     type CreateExperience,
+    CreateExperienceSchema,
     type CreateProject,
+    CreateProjectSchema,
     type ProfileBulletInput,
-    UpdateEducationSchema,
-    UpdateExperienceSchema,
-    UpdateProjectSchema,
     type UpdateEducation,
+    UpdateEducationSchema,
     type UpdateExperience,
+    UpdateExperienceSchema,
     type UpdateProject,
+    UpdateProjectSchema,
 } from '@matchbox/shared';
 import {
     Alert,
@@ -30,10 +30,10 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { firstZodIssueMessage } from '../../profile-form-validation';
-import type { ProfileMutateHandlers } from '../../profile-mutate.types';
 import { BulletEditor } from '../../components/BulletEditor';
 import { formatItemSubtitle, ProfileItemCard } from '../../components/ProfileItemCard';
+import { firstZodIssueMessage } from '../../profile-form-validation';
+import type { ProfileMutateHandlers } from '../../profile-mutate.types';
 
 type BaseItem = {
     id: string;
@@ -113,7 +113,7 @@ export function ProfileItemsSection({
     const sectionTitle = t(`sections.${kind === 'project' ? 'project' : kind}`);
     const isEducation = kind === 'education';
     const supportsTech = kind === 'experience' || kind === 'project';
-    const currentLabelKey = `form.current.${kind}` as 'form.current.experience' | 'form.current.project' | 'form.current.education';
+    const currentLabelKey = `form.current.${kind}`;
 
     const resetForm = () => {
         setEditingId(undefined);

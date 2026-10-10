@@ -1,8 +1,8 @@
 import {
-    type Profile,
     CreateEducationSchema,
     CreateExperienceSchema,
     CreateProjectSchema,
+    type Profile,
     ProfileSchema,
     ReplaceProfileSkillsSchema,
     UpdateEducationSchema,

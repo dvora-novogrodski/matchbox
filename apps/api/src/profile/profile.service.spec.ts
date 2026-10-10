@@ -1,6 +1,6 @@
 import { ProfileItemNotFoundError } from './profile.errors';
-import { ProfileService } from './profile.service';
 import type { ProfileRepository } from './profile.repository';
+import { ProfileService } from './profile.service';
 
 const USER_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd123';
 const ITEM_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd124';
@@ -22,21 +22,23 @@ describe('ProfileService', () => {
     });
 
     it('should return a grouped profile for the current user', async () => {
-        repository.listItemsByKind.mockImplementation(async (_userId, kind) =>
-            kind === 'experience'
-                ? [
-                      {
-                          id: ITEM_ID,
-                          kind: 'experience',
-                          title: 'Engineer',
-                          organization: 'Acme',
-                          startDate: null,
-                          endDate: null,
-                          tech: [],
-                          bullets: [{ id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd125', text: 'Shipped', position: 0 }],
-                      },
-                  ]
-                : [],
+        repository.listItemsByKind.mockImplementation((_userId, kind) =>
+            Promise.resolve(
+                kind === 'experience'
+                    ? [
+                          {
+                              id: ITEM_ID,
+                              kind: 'experience',
+                              title: 'Engineer',
+                              organization: 'Acme',
+                              startDate: null,
+                              endDate: null,
+                              tech: [],
+                              bullets: [{ id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd125', text: 'Shipped', position: 0 }],
+                          },
+                      ]
+                    : [],
+            ),
         );
         repository.listSkills.mockResolvedValue([{ id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd126', name: 'TypeScript', position: 0 }]);
 

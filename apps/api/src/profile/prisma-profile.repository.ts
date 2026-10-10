@@ -1,15 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import type { CareerItem, CareerItemKind, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { profileItemOrderBy } from './profile-item-order';
+import type { CareerItem, CareerItemKind, Prisma } from '../generated/prisma/client';
 import { ProfileBulletNotFoundError } from './profile.errors';
 import { ProfileRepository } from './profile.repository';
+import { profileItemOrderBy } from './profile-item-order';
 import { normalizeSkillName } from './profile-skill.utils';
 import type {
     BulletInput,
     CreateProfileItemScalars,
-    ProfileBulletEntity,
     ProfileItemEntity,
     SkillEntity,
     UpdateProfileItemScalars,

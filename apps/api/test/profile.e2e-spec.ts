@@ -1,4 +1,4 @@
-import { ProfileSchema, ReplaceProfileSkillsResponseSchema } from '@matchbox/shared';
+import { ProfileExperienceSchema, ProfileSchema, ReplaceProfileSkillsResponseSchema } from '@matchbox/shared';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 
@@ -84,7 +84,7 @@ describe('Profile (e2e)', () => {
         });
 
         expect(createResponse.statusCode).toBe(201);
-        const experience = createResponse.json() as { id: string; bullets: { id: string; text: string }[] };
+        const experience = ProfileExperienceSchema.parse(createResponse.json());
         expect(experience.bullets).toHaveLength(1);
 
         const listResponse = await app.inject({
@@ -128,7 +128,7 @@ describe('Profile (e2e)', () => {
             headers: { authorization: 'Bearer user-one-token' },
             payload: { title: 'Mine', bullets: [] },
         });
-        const item = createResponse.json() as { id: string };
+        const item = ProfileExperienceSchema.parse(createResponse.json());
 
         const response = await app.inject({
             method: 'PATCH',

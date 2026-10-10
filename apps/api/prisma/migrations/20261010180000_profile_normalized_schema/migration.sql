@@ -1,15 +1,12 @@
 -- DEV-ONLY / DESTRUCTIVE: truncates all career_items and related embeddings.
 -- Do not apply this pattern in production without a real data migration plan.
--- Normalizes career profile storage (F2): bullets table, skills table, kind enum.
+-- Normalizes career profile storage (F2) from init: bullets table, skills table, kind enum.
 
 TRUNCATE TABLE "career_item_embeddings";
 UPDATE "cv_changes" SET "evidence_item_id" = NULL WHERE "evidence_item_id" IS NOT NULL;
 TRUNCATE TABLE "career_items" CASCADE;
 
-ALTER TABLE "career_items" DROP CONSTRAINT IF EXISTS "career_items_parent_id_fkey";
-DROP INDEX IF EXISTS "career_items_parent_id_idx";
-ALTER TABLE "career_items" DROP COLUMN IF EXISTS "parent_id";
-ALTER TABLE "career_items" DROP COLUMN IF EXISTS "text";
+ALTER TABLE "career_items" DROP COLUMN "text";
 
 CREATE TYPE "career_item_kind_new" AS ENUM ('experience', 'project', 'education');
 ALTER TABLE "career_items"

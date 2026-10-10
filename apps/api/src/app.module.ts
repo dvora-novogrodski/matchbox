@@ -5,10 +5,10 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 
 import { AppConfig } from './app.config';
 import { AuthModule } from './auth/auth.module';
-import { ProfileModule } from './profile/profile.module';
 import { validate } from './common/config/env.validation';
 import { HealthModule } from './common/health/health.module';
 import { PrismaModule } from './common/prisma/prisma.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
