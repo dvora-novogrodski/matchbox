@@ -4,6 +4,7 @@
     "signedInAs": "Signed in as {{email}}"
   },
   "actions": {
+    "openCareerProfile": "Open career profile",
     "signOut": "Sign out"
   },
   "errors": {

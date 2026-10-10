@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@matchbox/ui';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { useCurrentUser, useSignOut } from 'src/features/auth';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +10,16 @@ vi.mock('src/features/auth', () => ({
   useCurrentUser: vi.fn(),
   useSignOut: vi.fn(),
 }));
+
+function renderApp() {
+  return render(
+    <ThemeProvider>
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    </ThemeProvider>,
+  );
+}
 
 describe('App', () => {
   const mutate = vi.fn();
@@ -29,11 +40,7 @@ describe('App', () => {
       isPending: false,
     } as ReturnType<typeof useCurrentUser>);
 
-    render(
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>,
-    );
+    renderApp();
 
     expect(screen.getByRole('heading', { name: 'Matchbox' })).toBeInTheDocument();
     expect(screen.getByText('Signed in as user@example.com')).toBeInTheDocument();
@@ -46,11 +53,7 @@ describe('App', () => {
       isPending: false,
     } as ReturnType<typeof useCurrentUser>);
 
-    render(
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>,
-    );
+    renderApp();
 
     fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
 
@@ -69,11 +72,7 @@ describe('App', () => {
       mutate,
     } as unknown as ReturnType<typeof useSignOut>);
 
-    render(
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>,
-    );
+    renderApp();
 
     expect(screen.getByText('You could not be signed out. Please try again.')).toBeInTheDocument();
   });

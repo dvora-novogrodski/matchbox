@@ -1,0 +1,75 @@
+{
+  "page": {
+    "title": "Career profile",
+    "description": "Everything Matchbox can draw on when tailoring your CV."
+  },
+  "form": {
+    "addTitle": {
+      "experience": "Add experience",
+      "project": "Add project",
+      "education": "Add education"
+    },
+    "degree": "Degree",
+    "institution": "Institution",
+    "bullet": "Bullet",
+    "addBullet": "Add bullet",
+    "removeBullet": "Remove",
+    "editTitle": "Edit career item",
+    "title": "Title",
+    "skill": "Skill",
+    "organization": "Organization",
+    "startDate": "Start month",
+    "endDate": "End month",
+    "currentRole": "I currently work here",
+    "tech": "Technologies",
+    "description": "Description",
+    "descriptionHint": "Write one bullet per line.",
+    "add": "Add",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "validation": {
+      "required": "This field is required."
+    }
+  },
+  "kinds": {
+    "experience": "Experience",
+    "project": "Project",
+    "achievement": "Achievement",
+    "skill": "Skill",
+    "education": "Education"
+  },
+  "skills": {
+    "edit": "Edit skills",
+    "label": "Skills",
+    "save": "Save skills",
+    "cancel": "Cancel"
+  },
+  "sections": {
+    "experience": "Experience",
+    "project": "Projects",
+    "skill": "Skills",
+    "education": "Education",
+    "add": "Add",
+    "empty": "Nothing added yet."
+  },
+  "item": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Item actions",
+    "more": "⋯",
+    "addAchievement": "Add achievement",
+    "present": "Present",
+    "confirmDelete": "Delete “{{title}}”? This cannot be undone."
+  },
+  "import": {
+    "button": "Import from CV",
+    "title": "Import from CV",
+    "description": "CV import is not available yet. When it is ready, you will be able to upload a PDF or DOCX file, or paste CV text, then review suggested items before adding them to your profile.",
+    "close": "Close"
+  },
+  "errors": {
+    "loadFailed": "Your career profile could not be loaded. Please try again.",
+    "saveFailed": "The career item could not be saved. Please try again.",
+    "deleteFailed": "The career item could not be deleted. Please try again."
+  }
+}

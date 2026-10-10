@@ -1,9 +1,11 @@
 import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@matchbox/ui';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useCurrentUser, useSignOut } from 'src/features/auth';
 
 export function App() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const signOut = useSignOut();
 
@@ -21,6 +23,15 @@ export function App() {
           <Typography>{t('app.signedInAs', { email: currentUser.data.email })}</Typography>
         )}
         {signOut.isError ? <Alert severity="error">{t('errors.signOutFailed')}</Alert> : null}
+        <Button
+          data-test="app-career-profile-button"
+          onClick={() => {
+            void navigate('/profile');
+          }}
+          variant="contained"
+        >
+          {t('actions.openCareerProfile')}
+        </Button>
         <Button
           data-test="app-sign-out-button"
           disabled={signOut.isPending}
