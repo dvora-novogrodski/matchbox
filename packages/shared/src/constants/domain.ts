@@ -1,11 +1,9 @@
-export const CAREER_ITEM_KINDS = [
-  'experience',
-  'project',
-  'achievement',
-  'skill',
-  'education',
-] as const;
-export type CareerItemKind = (typeof CAREER_ITEM_KINDS)[number];
+export const PROFILE_ITEM_KINDS = ['experience', 'project', 'education'] as const;
+export type ProfileItemKind = (typeof PROFILE_ITEM_KINDS)[number];
+
+/** @deprecated Use PROFILE_ITEM_KINDS; kept for transitional imports until AI tables align. */
+export const CAREER_ITEM_KINDS = PROFILE_ITEM_KINDS;
+export type CareerItemKind = ProfileItemKind;
 
 export const CV_SECTIONS = [
   'header',
