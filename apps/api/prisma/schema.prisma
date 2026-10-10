@@ -17,8 +17,6 @@ datasource db {
 enum CareerItemKind {
   experience
   project
-  achievement
-  skill
   education
 
   @@map("career_item_kind")
@@ -132,6 +130,7 @@ model User {
   updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   careerItems  CareerItem[]
+  skills       Skill[]
   statusDefs   StatusDef[]
   jobMatches   JobMatch[]
   applications Application[]
@@ -149,7 +148,6 @@ model CareerItem {
   kind         CareerItemKind
   title        String
   organization String?
-  text         String
   startDate    DateTime?      @map("start_date") @db.Date
   endDate      DateTime?      @map("end_date") @db.Date
   tech         String[]       @default([])
@@ -158,11 +156,42 @@ model CareerItem {
   updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bullets    CareerBullet[]
   embeddings CareerItemEmbedding[]
   cvChanges  CvChange[]
 
   @@index([userId, kind])
   @@map("career_items")
+}
+
+model CareerBullet {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  itemId    String   @map("item_id") @db.Uuid
+  text      String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  item CareerItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId, position])
+  @@map("career_bullets")
+}
+
+model Skill {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  name           String
+  nameNormalized String   @map("name_normalized")
+  position       Int
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, nameNormalized])
+  @@index([userId, position])
+  @@map("skills")
 }
 
 /// AI-owned (A1). Written by the AI worker; re-embedded when the content hash or model changes.

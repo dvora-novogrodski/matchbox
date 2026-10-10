@@ -12,7 +12,7 @@ src/
   auth/           AuthVerifier interface + Firebase implementation, global guard (F1)
   users/          User record, time zone, search prefs
   plans/          Plan definitions and limit checks (section 4.4)
-  career-items/   Career profile CRUD; triggers A1 indexing (F2)
+  profile/        Grouped career profile (`GET /profile`, bullets, skills); triggers A1 indexing (F2)
   cv/             CV schema validation, versions, HTML/PDF rendering (F3)
     templates/    Deterministic templates, selected by template id
   applications/   Pipeline, application lifecycle (F4, F5)

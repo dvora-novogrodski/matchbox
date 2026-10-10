@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { validate } from './common/config/env.validation';
 import { HealthModule } from './common/health/health.module';
 import { PrismaModule } from './common/prisma/prisma.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PrismaModule } from './common/prisma/prisma.module';
     PrismaModule,
     HealthModule,
     AuthModule,
+    ProfileModule,
   ],
   providers: [
     AppConfig,

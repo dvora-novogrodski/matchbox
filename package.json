@@ -28,7 +28,8 @@
     "cpu-features": false,
     "protobufjs": false,
     "ssh2": false,
-    "@firebase/util": false
+    "@firebase/util": false,
+    "msw@2.15.0": false
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

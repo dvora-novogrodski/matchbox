@@ -13,6 +13,19 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/profile',
+    lazy: async () => {
+      const { ProfilePage } = await import('src/features/profile');
+      return {
+        Component: () => (
+          <RequireAuth>
+            <ProfilePage />
+          </RequireAuth>
+        ),
+      };
+    },
+  },
+  {
     path: '/login',
     element: (
       <PublicOnly>

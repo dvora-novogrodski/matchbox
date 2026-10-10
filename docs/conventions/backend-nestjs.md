@@ -33,7 +33,7 @@ apps/api/
       github/
       firebase/
       task-queue/               # TaskQueue port + cloud-tasks and local implementations
-    <feature>/                  # applications, jobs, companies, career-items, cv, discover, plans, statuses, users, events
+    <feature>/                  # applications, jobs, companies, profile, cv, discover, plans, statuses, users, events
       <feature>.module.ts
       <feature>.controller.ts
       <feature>.service.ts
@@ -204,7 +204,7 @@ export class ApplicationNotFoundError extends ApplicationError {
 ## 9. HTTP API style
 
 - Global prefix `api`, URI versioning, default version `1`: `/api/v1/applications`.
-- Resources are plural kebab-case nouns: `/applications`, `/career-items`, `/companies`. Actions that are not CRUD are verbs under a resource, as in the HLD: `POST /jobs/:id/save`, `POST /applications/:id/tailor`.
+- Resources are plural kebab-case nouns: `/applications`, `/profile`, `/companies`. Profile items are nested: `/profile/experience`, `/profile/projects`, `/profile/education`, with `PUT /profile/skills` for the skills list. Actions that are not CRUD are verbs under a resource, as in the HLD: `POST /jobs/:id/save`, `POST /applications/:id/tailor`.
 - No response envelope for single resources. Collections return `{ items: [...] }` so pagination fields can be added later without breaking clients.
 - Long-running work returns `202` with a task id; the client polls `GET /api/v1/tasks/:id` (D3).
 - Health: `GET /health/live` (no checks) and `GET /health/ready` (database ping through terminus `PrismaHealthIndicator`), outside the prefix and unversioned.
