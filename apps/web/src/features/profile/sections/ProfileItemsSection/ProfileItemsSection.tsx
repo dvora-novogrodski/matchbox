@@ -113,7 +113,6 @@ export function ProfileItemsSection({
     const sectionTitle = t(`sections.${kind === 'project' ? 'project' : kind}`);
     const isEducation = kind === 'education';
     const supportsTech = kind === 'experience' || kind === 'project';
-    const currentLabelKey = `form.current.${kind}`;
 
     const resetForm = () => {
         setEditingId(undefined);
@@ -346,7 +345,7 @@ export function ProfileItemsSection({
                                         onChange={(event) => setIsCurrent(event.target.checked)}
                                     />
                                 }
-                                label={t(currentLabelKey)}
+                                label={t(`form.current.${kind}`)}
                             />
                             {supportsTech ? (
                                 <Autocomplete
