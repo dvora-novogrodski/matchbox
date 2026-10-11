@@ -1,6 +1,7 @@
 import {
     Alert,
     Box,
+    Button,
     CircularProgress,
     Stack,
     ToggleButton,
@@ -8,7 +9,7 @@ import {
     Typography,
 } from '@matchbox/ui';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 
 import { useApplications, useChangeApplicationStatus, useStatuses } from '../../api/applications.queries';
 import { PipelineBoard } from '../../components/PipelineBoard';
@@ -50,23 +51,28 @@ export function PipelinePage() {
                         </Typography>
                         <Typography color="text.secondary">{t('page.description')}</Typography>
                     </Stack>
-                    <ToggleButtonGroup
-                        aria-label={t('view.label')}
-                        exclusive
-                        onChange={(_event, next: unknown) => {
-                            if (next === 'board' || next === 'table') {
-                                setView(next);
-                            }
-                        }}
-                        value={view}
-                    >
-                        <ToggleButton data-test="pipeline-view-board-button" value="board">
-                            {t('view.board')}
-                        </ToggleButton>
-                        <ToggleButton data-test="pipeline-view-table-button" value="table">
-                            {t('view.table')}
-                        </ToggleButton>
-                    </ToggleButtonGroup>
+                    <Stack direction="row" spacing={1}>
+                        <Button component={RouterLink} data-test="pipeline-add-job-button" to="/jobs/new" variant="contained">
+                            {t('actions.addJob')}
+                        </Button>
+                        <ToggleButtonGroup
+                            aria-label={t('view.label')}
+                            exclusive
+                            onChange={(_event, next: unknown) => {
+                                if (next === 'board' || next === 'table') {
+                                    setView(next);
+                                }
+                            }}
+                            value={view}
+                        >
+                            <ToggleButton data-test="pipeline-view-board-button" value="board">
+                                {t('view.board')}
+                            </ToggleButton>
+                            <ToggleButton data-test="pipeline-view-table-button" value="table">
+                                {t('view.table')}
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </Stack>
                 </Stack>
                 {changeStatus.isError ? <Alert severity="error">{t('errors.statusFailed')}</Alert> : null}
                 {isPending ? (

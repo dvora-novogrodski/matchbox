@@ -2,6 +2,7 @@ import type { EventType, WorkMode } from '@matchbox/shared';
 
 import type { StatusRecord } from '../../statuses/types/statuses.types';
 
+/** User-entered details stored on the application. `id` is the shared posting. */
 export type ApplicationJobRecord = {
     id: string;
     title: string;
@@ -57,6 +58,20 @@ export type ApplicationNoteEvent = {
     text: string;
     occurredAt: Date;
 };
+
+export type ManualJobDraft = {
+    companyName: string;
+    title: string;
+    url: string | null;
+    normalizedUrl: string | null;
+    location: string | null;
+    workMode: WorkMode | null;
+    description: string | null;
+};
+
+export type CreateManualJobResult =
+    | { kind: 'created'; application: ApplicationRecord }
+    | { kind: 'exists'; jobId: string };
 
 export type ApplicationDetailsUpdate = {
     recruiterName: string | null;

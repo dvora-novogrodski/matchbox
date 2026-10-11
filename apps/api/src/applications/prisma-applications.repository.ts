@@ -9,7 +9,9 @@ import type {
     ApplicationDetailsUpdate,
     ApplicationRecord,
     ApplicationStatusChange,
+    CreateManualJobResult,
     JobPageRecord,
+    ManualJobDraft,
 } from './types/applications.types';
 
 const applicationInclude = {
@@ -56,7 +58,7 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
         }
         return {
             application: this.toApplication(application),
-            description: application.job.description,
+            description: application.description,
             events: application.events.map((event) => ({
                 id: event.id,
                 type: toEventType(event.type),
@@ -116,6 +118,56 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
         });
     }
 
+    async createManual(
+        userId: string,
+        draft: ManualJobDraft,
+        statusId: string,
+        occurredAt: Date,
+    ): Promise<CreateManualJobResult> {
+        const job = await this.findOrCreateJob(draft.normalizedUrl);
+        try {
+            return await this.prisma.$transaction(async (tx) => {
+                const existing = await tx.application.findUnique({
+                    where: { userId_jobId: { userId, jobId: job.id } },
+                });
+                if (existing) {
+                    return { kind: 'exists', jobId: job.id };
+                }
+
+                const application = await tx.application.create({
+                    data: {
+                        userId,
+                        jobId: job.id,
+                        statusId,
+                        lastActivityAt: occurredAt,
+                        companyName: draft.companyName,
+                        title: draft.title,
+                        url: draft.url,
+                        location: draft.location,
+                        workMode: draft.workMode,
+                        description: draft.description,
+                    },
+                    include: applicationInclude,
+                });
+                await tx.event.create({
+                    data: {
+                        userId,
+                        applicationId: application.id,
+                        type: 'created',
+                        payload: {},
+                        occurredAt,
+                    },
+                });
+                return { kind: 'created', application: this.toApplication(application) };
+            });
+        } catch (error) {
+            if (isUniqueViolation(error)) {
+                return { kind: 'exists', jobId: job.id };
+            }
+            throw error;
+        }
+    }
+
     async updateDetails(
         userId: string,
         applicationId: string,
@@ -155,16 +207,43 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
         });
     }
 
+    private async findOrCreateJob(normalizedUrl: string | null) {
+        if (normalizedUrl) {
+            const existing = await this.prisma.job.findUnique({ where: { normalizedUrl } });
+            if (existing) {
+                return existing;
+            }
+        }
+
+        try {
+            return await this.prisma.job.create({
+                data: {
+                    source: 'manual',
+                    normalizedUrl,
+                },
+            });
+        } catch (error) {
+            if (!isUniqueViolation(error) || !normalizedUrl) {
+                throw error;
+            }
+            const existing = await this.prisma.job.findUnique({ where: { normalizedUrl } });
+            if (!existing) {
+                throw error;
+            }
+            return existing;
+        }
+    }
+
     private toApplication(application: ApplicationRow | JobPageRow): ApplicationRecord {
         return {
             id: application.id,
             job: {
                 id: application.job.id,
-                title: application.job.title,
-                companyName: application.job.companyName,
-                location: application.job.location,
-                workMode: toWorkMode(application.job.workMode),
-                url: application.job.url,
+                title: application.title,
+                companyName: application.companyName,
+                location: application.location,
+                workMode: toWorkMode(application.workMode),
+                url: application.url,
             },
             status: {
                 id: application.status.id,
@@ -183,6 +262,13 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
             updatedAt: application.updatedAt,
         };
     }
+}
+
+function isUniqueViolation(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null || !('code' in error)) {
+        return false;
+    }
+    return error.code === 'P2002';
 }
 
 function toEventType(type: string): EventType {

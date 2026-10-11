@@ -1,7 +1,9 @@
+import { InternalServerErrorException } from '@nestjs/common';
+
 import { StatusNotFoundError } from '../statuses/statuses.errors';
 import type { StatusesRepository } from '../statuses/statuses.repository';
 import type { StatusRecord } from '../statuses/types/statuses.types';
-import { ApplicationNotFoundError } from './applications.errors';
+import { ApplicationAlreadyExistsError, ApplicationNotFoundError } from './applications.errors';
 import type { ApplicationsRepository } from './applications.repository';
 import { ApplicationsService } from './applications.service';
 import type { ApplicationRecord, JobPageRecord } from './types/applications.types';
@@ -54,10 +56,12 @@ describe('ApplicationsService', () => {
         findPageByJobId: jest.fn(),
         changeStatus: jest.fn(),
         updateDetails: jest.fn(),
+        createManual: jest.fn(),
     } as jest.Mocked<ApplicationsRepository>;
     const statusesRepository = {
         listVisible: jest.fn(),
         findVisible: jest.fn(),
+        findSystemByKey: jest.fn(),
     } as jest.Mocked<StatusesRepository>;
     const service = new ApplicationsService(applicationsRepository, statusesRepository);
 
@@ -437,5 +441,70 @@ describe('ApplicationsService', () => {
             }),
         ).rejects.toBeInstanceOf(ApplicationNotFoundError);
         expect(applicationsRepository.updateDetails.mock.calls).toEqual([]);
+    });
+
+    it('should create a saved application from a manual job', async () => {
+        const application = buildApplication();
+        statusesRepository.findSystemByKey.mockResolvedValue(buildStatus());
+        applicationsRepository.createManual.mockResolvedValue({ kind: 'created', application });
+
+        const result = await service.createManual(USER_ID, {
+            companyName: 'Acme',
+            title: 'Engineer',
+            url: 'https://Example.com/jobs/1/?utm_source=li',
+            location: 'Tel Aviv',
+            workMode: 'hybrid',
+            description: 'Build things',
+        });
+
+        expect(result.job.companyName).toBe('Acme');
+        expect(applicationsRepository.createManual.mock.calls).toEqual([
+            [
+                USER_ID,
+                {
+                    companyName: 'Acme',
+                    title: 'Engineer',
+                    url: 'https://Example.com/jobs/1/?utm_source=li',
+                    normalizedUrl: 'https://example.com/jobs/1',
+                    location: 'Tel Aviv',
+                    workMode: 'hybrid',
+                    description: 'Build things',
+                },
+                SAVED_STATUS_ID,
+                NOW,
+            ],
+        ]);
+    });
+
+    it('should reject a manual job that is already in the pipeline', async () => {
+        statusesRepository.findSystemByKey.mockResolvedValue(buildStatus());
+        applicationsRepository.createManual.mockResolvedValue({ kind: 'exists', jobId: '0199bcdf-20fc-744f-bc8b-6ef7c25cd127' });
+
+        await expect(
+            service.createManual(USER_ID, {
+                companyName: 'Acme',
+                title: 'Engineer',
+                url: 'https://example.com/jobs/1',
+                location: '',
+                workMode: '',
+                description: '',
+            }),
+        ).rejects.toBeInstanceOf(ApplicationAlreadyExistsError);
+    });
+
+    it('should reject a manual job when the saved status is missing', async () => {
+        statusesRepository.findSystemByKey.mockResolvedValue(null);
+
+        await expect(
+            service.createManual(USER_ID, {
+                companyName: 'Acme',
+                title: 'Engineer',
+                url: '',
+                location: '',
+                workMode: '',
+                description: '',
+            }),
+        ).rejects.toBeInstanceOf(InternalServerErrorException);
+        expect(applicationsRepository.createManual.mock.calls).toEqual([]);
     });
 });

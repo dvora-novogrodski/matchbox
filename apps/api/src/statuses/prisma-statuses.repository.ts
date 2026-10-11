@@ -1,3 +1,4 @@
+import type { SystemStatusKey } from '@matchbox/shared';
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../common/prisma/prisma.service';
@@ -18,6 +19,13 @@ export class PrismaStatusesRepository extends StatusesRepository {
             orderBy: { position: 'asc' },
         });
         return statuses.map((status) => this.toStatus(status));
+    }
+
+    async findSystemByKey(key: SystemStatusKey): Promise<StatusRecord | null> {
+        const status = await this.prisma.statusDef.findFirst({
+            where: { key, userId: null },
+        });
+        return status ? this.toStatus(status) : null;
     }
 
     async findVisible(userId: string, statusId: string): Promise<StatusRecord | null> {

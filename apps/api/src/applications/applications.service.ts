@@ -1,11 +1,13 @@
-import type { Application, ApplicationList, JobPage, StatusCategory, UpdateApplication } from '@matchbox/shared';
-import { Injectable, Logger } from '@nestjs/common';
+import type { Application, ApplicationList, CreateManualJob, JobPage, StatusCategory, UpdateApplication } from '@matchbox/shared';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 
+import { normalizeJobUrl } from '../jobs/normalize-job-url';
 import { StatusNotFoundError } from '../statuses/statuses.errors';
 import { StatusesRepository } from '../statuses/statuses.repository';
-import { ApplicationNotFoundError } from './applications.errors';
+import { ApplicationAlreadyExistsError, ApplicationNotFoundError } from './applications.errors';
 import { toApplication, toApplicationList, toJobPage } from './applications.mapper';
 import { ApplicationsRepository } from './applications.repository';
+import type { ManualJobDraft } from './types/applications.types';
 
 const CATEGORIES_THAT_RECORD_APPLIED = new Set<StatusCategory>(['active', 'interviewing', 'offer']);
 
@@ -93,6 +95,34 @@ export class ApplicationsService {
         this.logger.log({ userId, applicationId }, 'Application details updated');
         return toApplication(updated);
     }
+
+    async createManual(userId: string, input: CreateManualJob): Promise<Application> {
+        const saved = await this.statusesRepository.findSystemByKey('saved');
+        if (!saved) {
+            throw new InternalServerErrorException('Saved status is not configured');
+        }
+
+        const now = new Date();
+        const created = await this.applicationsRepository.createManual(userId, toManualJobDraft(input), saved.id, now);
+        if (created.kind === 'exists') {
+            throw new ApplicationAlreadyExistsError(created.jobId);
+        }
+
+        this.logger.log({ userId, jobId: created.application.job.id }, 'Manual job added');
+        return toApplication(created.application);
+    }
+}
+
+function toManualJobDraft(input: CreateManualJob): ManualJobDraft {
+    return {
+        companyName: input.companyName,
+        title: input.title,
+        url: emptyToNull(input.url),
+        normalizedUrl: normalizeJobUrl(input.url),
+        location: emptyToNull(input.location),
+        workMode: input.workMode === '' ? null : input.workMode,
+        description: emptyToNull(input.description),
+    };
 }
 
 function emptyToNull(value: string): string | null {

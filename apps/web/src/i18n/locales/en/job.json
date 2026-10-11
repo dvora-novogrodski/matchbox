@@ -1,6 +1,7 @@
 {
   "actions": {
     "backToPipeline": "Back to pipeline",
+    "openExisting": "Open it",
     "tailorCv": "Tailor CV",
     "prepareToApply": "Prepare to apply",
     "markApplied": "Mark as applied",
@@ -54,6 +55,24 @@
   },
   "validation": {
     "tooLong": "This is too long."
+  },
+  "add": {
+    "title": "Add a job",
+    "description": "Save a job you found yourself.",
+    "company": "Company",
+    "role": "Role",
+    "url": "Link",
+    "location": "Location",
+    "workMode": "Work mode",
+    "workModeEmpty": "Not specified",
+    "descriptionLabel": "Description",
+    "submit": "Add job",
+    "companyRequired": "Enter a company name.",
+    "roleRequired": "Enter a role.",
+    "urlInvalid": "Enter a valid http or https link.",
+    "tooLong": "This is too long.",
+    "saveFailed": "The job could not be added. Please try again.",
+    "alreadySaved": "This job is already in your pipeline."
   },
   "errors": {
     "loadFailed": "This job could not be loaded. Please try again.",

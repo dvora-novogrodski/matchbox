@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { WORK_MODES } from '../constants/domain';
 import { ApplicationSchema } from './pipeline.schema';
 
 const eventFields = {
@@ -62,6 +63,35 @@ export type JobPage = z.infer<typeof JobPageSchema>;
 
 export const RECRUITER_FIELD_MAX_LENGTH = 200;
 export const APPLICATION_NOTES_MAX_LENGTH = 10000;
+
+export const MANUAL_JOB_COMPANY_MAX_LENGTH = 200;
+export const MANUAL_JOB_TITLE_MAX_LENGTH = 200;
+export const MANUAL_JOB_URL_MAX_LENGTH = 2000;
+export const MANUAL_JOB_LOCATION_MAX_LENGTH = 200;
+export const MANUAL_JOB_DESCRIPTION_MAX_LENGTH = 20000;
+
+export const CreateManualJobSchema = z.object({
+    companyName: z.string().trim().min(1).max(MANUAL_JOB_COMPANY_MAX_LENGTH),
+    title: z.string().trim().min(1).max(MANUAL_JOB_TITLE_MAX_LENGTH),
+    url: z
+        .string()
+        .trim()
+        .max(MANUAL_JOB_URL_MAX_LENGTH)
+        .refine((value) => value.length === 0 || isHttpUrl(value)),
+    location: z.string().trim().max(MANUAL_JOB_LOCATION_MAX_LENGTH),
+    workMode: z.union([z.enum(WORK_MODES), z.literal('')]),
+    description: z.string().trim().max(MANUAL_JOB_DESCRIPTION_MAX_LENGTH),
+});
+export type CreateManualJob = z.infer<typeof CreateManualJobSchema>;
+
+function isHttpUrl(value: string): boolean {
+    try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
 
 export const UpdateApplicationSchema = z.object({
     recruiterName: z.string().max(RECRUITER_FIELD_MAX_LENGTH),

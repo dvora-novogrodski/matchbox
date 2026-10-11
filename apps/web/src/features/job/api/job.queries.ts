@@ -1,7 +1,8 @@
+import type { CreateManualJob } from '@matchbox/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { applicationKeys, changeApplicationStatus } from 'src/features/pipeline';
 
-import { getJobPage, updateApplication } from './job.api';
+import { createManualJob, getJobPage, updateApplication } from './job.api';
 
 export const jobKeys = {
     all: ['jobs'] as const,
@@ -24,6 +25,16 @@ export function useUpdateApplication(jobId: string) {
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: applicationKeys.all });
             void queryClient.invalidateQueries({ queryKey: jobKeys.detail(jobId) });
+        },
+    });
+}
+
+export function useCreateManualJob() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (input: CreateManualJob) => createManualJob(input),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: applicationKeys.all });
         },
     });
 }

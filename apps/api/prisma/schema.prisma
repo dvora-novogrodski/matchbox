@@ -227,21 +227,15 @@ model Company {
   @@map("companies")
 }
 
-/// A posting, independent of any application. Shared across users; reached through job_match and application.
+/// A posting shared across users. Identity is the normalized URL.
+/// Company, role, location, work mode, link, and description are per application.
 model Job {
   id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   companyId               String?   @map("company_id") @db.Uuid
-  /// Kept even when company_id is set, for manually added jobs outside the registry.
-  companyName             String    @map("company_name")
   source                  JobSource
   externalId              String?   @map("external_id")
-  url                     String?
   normalizedUrl           String?   @unique @map("normalized_url")
-  title                   String
-  location                String?
-  workMode                WorkMode? @map("work_mode")
-  description             String?
-  /// Extracted by A2; AI-written.
+  /// Extracted by A2; AI-written. Empty until autofill exists.
   requirements            Json?
   extractionModel         String?   @map("extraction_model")
   extractionPromptVersion String?   @map("extraction_prompt_version")
@@ -308,6 +302,13 @@ model Application {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId           String    @map("user_id") @db.Uuid
   jobId            String    @map("job_id") @db.Uuid
+  /// What this user entered. Never written onto the shared job.
+  companyName      String    @map("company_name")
+  title            String
+  location         String?
+  workMode         WorkMode? @map("work_mode")
+  url              String?
+  description      String?
   /// Cache of the latest status_changed event.
   statusId         String    @map("status_id") @db.Uuid
   recruiterName    String?   @map("recruiter_name")

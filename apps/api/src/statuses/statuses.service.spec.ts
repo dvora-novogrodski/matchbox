@@ -8,6 +8,7 @@ describe('StatusesService', () => {
     const repository = {
         listVisible: jest.fn(),
         findVisible: jest.fn(),
+        findSystemByKey: jest.fn(),
     } as jest.Mocked<StatusesRepository>;
     const service = new StatusesService(repository);
 

@@ -3,6 +3,9 @@
     "title": "Pipeline",
     "description": "Applications grouped by status."
   },
+  "actions": {
+    "addJob": "Add job"
+  },
   "view": {
     "label": "Pipeline view",
     "board": "Board",

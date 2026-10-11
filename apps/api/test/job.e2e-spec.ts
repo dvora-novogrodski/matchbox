@@ -69,16 +69,18 @@ describe('Job page (e2e)', () => {
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const applied = await prisma.statusDef.findFirstOrThrow({ where: { key: 'applied' } });
         const job = await prisma.job.create({
+            data: { source: 'manual' },
+        });
+        const application = await prisma.application.create({
             data: {
+                userId: user.id,
+                jobId: job.id,
+                statusId: saved.id,
                 companyName: 'Acme',
-                source: 'manual',
                 title: 'Engineer',
                 description: 'Build things',
                 location: 'Tel Aviv',
             },
-        });
-        const application = await prisma.application.create({
-            data: { userId: user.id, jobId: job.id, statusId: saved.id },
         });
         await prisma.event.create({
             data: {
@@ -118,10 +120,10 @@ describe('Job page (e2e)', () => {
         await signIn('user-two-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         await prisma.application.create({
-            data: { userId: userOne.id, jobId: job.id, statusId: saved.id },
+            data: { userId: userOne.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -149,10 +151,10 @@ describe('Job page (e2e)', () => {
         const user = await signIn('user-one-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: user.id, jobId: job.id, statusId: saved.id },
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -176,10 +178,10 @@ describe('Job page (e2e)', () => {
         const user = await signIn('user-one-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: user.id, jobId: job.id, statusId: saved.id, notes: 'Old' },
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer', notes: 'Old' },
         });
 
         const response = await app.inject({
@@ -199,10 +201,10 @@ describe('Job page (e2e)', () => {
         await signIn('user-two-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: userOne.id, jobId: job.id, statusId: saved.id },
+            data: { userId: userOne.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -220,10 +222,10 @@ describe('Job page (e2e)', () => {
         const user = await signIn('user-one-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: user.id, jobId: job.id, statusId: saved.id },
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -231,6 +233,200 @@ describe('Job page (e2e)', () => {
             url: `/api/v1/applications/${application.id}`,
             headers: { authorization: 'Bearer user-one-token' },
             payload: { recruiterName: 'Ada' },
+        });
+
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('should add a manual job as a saved application', async () => {
+        const user = await signIn('user-one-token');
+
+        const response = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: {
+                companyName: 'Acme',
+                title: 'Engineer',
+                url: 'https://Example.com/jobs/1/?utm_source=li',
+                location: 'Tel Aviv',
+                workMode: 'hybrid',
+                description: 'Build things',
+            },
+        });
+
+        expect(response.statusCode).toBe(201);
+        const body = ApplicationSchema.parse(response.json());
+        expect(body.job.companyName).toBe('Acme');
+        expect(body.job.url).toBe('https://Example.com/jobs/1/?utm_source=li');
+        expect(body.status.key).toBe('saved');
+        expect(body.appliedAt).toBeNull();
+
+        const stored = await prisma.application.findFirstOrThrow({ where: { id: body.id } });
+        expect(stored.description).toBe('Build things');
+        expect(stored.companyName).toBe('Acme');
+        expect(stored.url).toBe('https://Example.com/jobs/1/?utm_source=li');
+        const job = await prisma.job.findFirstOrThrow({ where: { id: body.job.id } });
+        expect(job.normalizedUrl).toBe('https://example.com/jobs/1');
+        expect(job.source).toBe('manual');
+        const events = await prisma.event.findMany({ where: { applicationId: body.id } });
+        expect(events).toEqual([expect.objectContaining({ type: 'created', userId: user.id, payload: {} })]);
+    });
+
+    it('should keep each users text when they add the same link', async () => {
+        const userOne = await signIn('user-one-token');
+        const userTwo = await signIn('user-two-token');
+        const first = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: {
+                companyName: 'Acme',
+                title: 'Engineer',
+                url: 'https://example.com/jobs/1',
+                location: 'Tel Aviv',
+                workMode: 'hybrid',
+                description: "A's text",
+            },
+        });
+        const second = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-two-token' },
+            payload: {
+                companyName: 'Beta',
+                title: 'Designer',
+                url: 'https://example.com/jobs/1/',
+                location: 'Haifa',
+                workMode: 'remote',
+                description: "B's text",
+            },
+        });
+
+        expect(first.statusCode).toBe(201);
+        expect(second.statusCode).toBe(201);
+        const firstBody = ApplicationSchema.parse(first.json());
+        const secondBody = ApplicationSchema.parse(second.json());
+        expect(secondBody.job.id).toBe(firstBody.job.id);
+        expect(firstBody.job).toMatchObject({ companyName: 'Acme', title: 'Engineer', location: 'Tel Aviv', workMode: 'hybrid' });
+        expect(secondBody.job).toMatchObject({
+            companyName: 'Beta',
+            title: 'Designer',
+            location: 'Haifa',
+            workMode: 'remote',
+            url: 'https://example.com/jobs/1/',
+        });
+
+        const firstPage = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${firstBody.job.id}`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+        const secondPage = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${secondBody.job.id}`,
+            headers: { authorization: 'Bearer user-two-token' },
+        });
+        expect(JobPageSchema.parse(firstPage.json()).description).toBe("A's text");
+        expect(JobPageSchema.parse(secondPage.json()).description).toBe("B's text");
+
+        const stored = await prisma.application.findMany({ where: { jobId: firstBody.job.id } });
+        expect(stored).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ userId: userOne.id, description: "A's text", companyName: 'Acme' }),
+                expect.objectContaining({ userId: userTwo.id, description: "B's text", title: 'Designer' }),
+            ]),
+        );
+        expect(await prisma.job.count()).toBe(1);
+    });
+
+    it('should reject a manual job the current user already has', async () => {
+        await signIn('user-one-token');
+        const payload = {
+            companyName: 'Acme',
+            title: 'Engineer',
+            url: 'https://example.com/jobs/1/',
+            location: '',
+            workMode: '',
+            description: '',
+        };
+        const created = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload,
+        });
+        const jobId = ApplicationSchema.parse(created.json()).job.id;
+
+        const duplicate = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload,
+        });
+
+        expect(duplicate.statusCode).toBe(409);
+        expect(duplicate.json()).toMatchObject({ code: 'APPLICATION_ALREADY_EXISTS', jobId });
+    });
+
+    it('should reject a manual job without a title', async () => {
+        await signIn('user-one-token');
+
+        const response = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: { companyName: 'Acme', url: '', location: '', workMode: '', description: '' },
+        });
+
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('should create a separate posting when a manual job has no link', async () => {
+        await signIn('user-one-token');
+        const payload = {
+            companyName: 'Acme',
+            title: 'Engineer',
+            url: '',
+            location: '',
+            workMode: '',
+            description: '',
+        };
+
+        const first = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload,
+        });
+        const second = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload,
+        });
+
+        expect(first.statusCode).toBe(201);
+        expect(second.statusCode).toBe(201);
+        expect(ApplicationSchema.parse(second.json()).job.id).not.toBe(ApplicationSchema.parse(first.json()).job.id);
+        expect(await prisma.job.count()).toBe(2);
+    });
+
+    it('should reject a manual job link that is not http', async () => {
+        await signIn('user-one-token');
+
+        const response = await app.inject({
+            method: 'POST',
+            url: '/api/v1/jobs',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: {
+                companyName: 'Acme',
+                title: 'Engineer',
+                url: 'ftp://example.com/jobs/1',
+                location: '',
+                workMode: '',
+                description: '',
+            },
         });
 
         expect(response.statusCode).toBe(400);

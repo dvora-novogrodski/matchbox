@@ -2,7 +2,9 @@ import type {
     ApplicationDetailsUpdate,
     ApplicationRecord,
     ApplicationStatusChange,
+    CreateManualJobResult,
     JobPageRecord,
+    ManualJobDraft,
 } from './types/applications.types';
 
 export abstract class ApplicationsRepository {
@@ -19,4 +21,10 @@ export abstract class ApplicationsRepository {
         applicationId: string,
         update: ApplicationDetailsUpdate,
     ): Promise<ApplicationRecord | null>;
+    abstract createManual(
+        userId: string,
+        draft: ManualJobDraft,
+        statusId: string,
+        occurredAt: Date,
+    ): Promise<CreateManualJobResult>;
 }

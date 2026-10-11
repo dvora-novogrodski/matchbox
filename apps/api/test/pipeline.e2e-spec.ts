@@ -100,13 +100,20 @@ describe('Pipeline (e2e)', () => {
         const userTwo = await signIn('user-two-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer', location: 'Tel Aviv' },
+            data: { source: 'manual' },
         });
         await prisma.application.create({
-            data: { userId: userOne.id, jobId: job.id, statusId: saved.id },
+            data: {
+                userId: userOne.id,
+                jobId: job.id,
+                statusId: saved.id,
+                companyName: 'Acme',
+                title: 'Engineer',
+                location: 'Tel Aviv',
+            },
         });
         await prisma.application.create({
-            data: { userId: userTwo.id, jobId: job.id, statusId: saved.id },
+            data: { userId: userTwo.id, jobId: job.id, statusId: saved.id, companyName: 'Other', title: 'Other role' },
         });
 
         const response = await app.inject({
@@ -130,13 +137,15 @@ describe('Pipeline (e2e)', () => {
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const applied = await prisma.statusDef.findFirstOrThrow({ where: { key: 'applied' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
             data: {
                 userId: user.id,
                 jobId: job.id,
                 statusId: saved.id,
+                companyName: 'Acme',
+                title: 'Engineer',
                 lastActivityAt: new Date('2026-01-01T00:00:00.000Z'),
             },
         });
@@ -169,10 +178,10 @@ describe('Pipeline (e2e)', () => {
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const withdrawn = await prisma.statusDef.findFirstOrThrow({ where: { key: 'withdrawn' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: user.id, jobId: job.id, statusId: saved.id },
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -190,10 +199,10 @@ describe('Pipeline (e2e)', () => {
         const user = await signIn('user-one-token');
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: user.id, jobId: job.id, statusId: saved.id },
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -213,10 +222,10 @@ describe('Pipeline (e2e)', () => {
         const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
         const applied = await prisma.statusDef.findFirstOrThrow({ where: { key: 'applied' } });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: userOne.id, jobId: job.id, statusId: saved.id },
+            data: { userId: userOne.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({
@@ -237,10 +246,10 @@ describe('Pipeline (e2e)', () => {
             data: { userId: userTwo.id, name: 'Secret', position: 9, category: 'active' },
         });
         const job = await prisma.job.create({
-            data: { companyName: 'Acme', source: 'manual', title: 'Engineer' },
+            data: { source: 'manual' },
         });
         const application = await prisma.application.create({
-            data: { userId: userOne.id, jobId: job.id, statusId: saved.id },
+            data: { userId: userOne.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
         });
 
         const response = await app.inject({

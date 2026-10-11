@@ -18,6 +18,7 @@ export const StatusListSchema = z.object({
 });
 export type StatusList = z.infer<typeof StatusListSchema>;
 
+/** Details this user entered. Stored on the application; the shared posting only contributes the id. */
 export const ApplicationJobSchema = z.object({
     id: z.uuid(),
     title: z.string(),

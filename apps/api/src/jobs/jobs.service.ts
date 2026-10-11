@@ -1,4 +1,4 @@
-import type { JobPage } from '@matchbox/shared';
+import type { Application, CreateManualJob, JobPage } from '@matchbox/shared';
 import { Injectable } from '@nestjs/common';
 
 import { ApplicationsService } from '../applications/applications.service';
@@ -9,5 +9,9 @@ export class JobsService {
 
     get(userId: string, jobId: string): Promise<JobPage> {
         return this.applicationsService.getByJob(userId, jobId);
+    }
+
+    createManual(userId: string, input: CreateManualJob): Promise<Application> {
+        return this.applicationsService.createManual(userId, input);
     }
 }

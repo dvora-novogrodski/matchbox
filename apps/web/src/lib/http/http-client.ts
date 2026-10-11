@@ -8,6 +8,7 @@ type ApiErrorBody = {
   code?: string;
   message?: string;
   requestId?: string;
+  jobId?: string;
 };
 
 export class ApiError extends Error {
@@ -16,6 +17,7 @@ export class ApiError extends Error {
     readonly code: string,
     message: string,
     readonly requestId?: string,
+    readonly jobId?: string,
   ) {
     super(message);
     this.name = ApiError.name;
@@ -46,6 +48,7 @@ httpClient.interceptors.response.use(
           body.code ?? 'UNKNOWN_ERROR',
           body.message ?? error.message,
           body.requestId,
+          body.jobId,
         ),
       );
     }
