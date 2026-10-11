@@ -19,6 +19,15 @@ export function selectionFromProfile(profile: Profile, user: { displayName: stri
     };
 }
 
+export function countRemovedIds(profile: Profile, selection: BaseCv): number {
+    return (
+        missingCount(selection.experienceItemIds, profile.experience) +
+        missingCount(selection.projectItemIds, profile.projects) +
+        missingCount(selection.skillIds, profile.skills) +
+        missingCount(selection.educationItemIds, profile.education)
+    );
+}
+
 export function pruneSelection(profile: Profile, selection: BaseCv): BaseCv {
     return {
         ...selection,
@@ -89,6 +98,10 @@ export function catalogFromProfile(profile: Profile): CvCatalog {
             subtitle: item.institution,
         })),
     };
+}
+
+function missingCount(ids: string[], items: { id: string }[]): number {
+    return ids.length - keepIds(ids, items).length;
 }
 
 function keepIds(ids: string[], items: { id: string }[]): string[] {

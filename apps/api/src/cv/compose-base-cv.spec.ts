@@ -1,6 +1,6 @@
 import type { Profile } from '@matchbox/shared';
 
-import { composeCvDocument, pruneSelection, selectionFromProfile } from './compose-base-cv';
+import { composeCvDocument, countRemovedIds, pruneSelection, selectionFromProfile } from './compose-base-cv';
 
 const EXPERIENCE_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd201';
 const OTHER_EXPERIENCE_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd202';
@@ -56,5 +56,12 @@ describe('compose base CV', () => {
             EXPERIENCE_ID,
         ]);
         expect(composeCvDocument(profile, selection).experience[1]?.bullets).toEqual(['Shipped the API.']);
+        expect(
+            countRemovedIds(profile, {
+                ...selection,
+                experienceItemIds: [OTHER_EXPERIENCE_ID, '0199bcdf-20fc-744f-bc8b-6ef7c25cd299', EXPERIENCE_ID],
+                skillIds: ['0199bcdf-20fc-744f-bc8b-6ef7c25cd298'],
+            }),
+        ).toBe(2);
     });
 });

@@ -34,6 +34,14 @@ describe('CvPage', () => {
         expect(await screen.findByTitle('CV preview')).toHaveAttribute('srcdoc', expect.stringContaining('Updated summary.'));
     });
 
+    it('should warn when selected items no longer exist in the profile', async () => {
+        server.use(...createCvHandlers(sampleCvEditor({ removedItemCount: 2 })));
+
+        renderWithProviders(<CvPage />);
+
+        expect(await screen.findByText('2 items you selected no longer exist in your profile.')).toBeInTheDocument();
+    });
+
     it('should show an error when the CV cannot be loaded', async () => {
         server.use(http.get('http://localhost:3000/api/v1/cv', () => new HttpResponse(null, { status: 500 })));
 

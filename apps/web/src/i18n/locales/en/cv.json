@@ -41,6 +41,10 @@
     "saved": "This preview matches the last saved base CV.",
     "dirty": "Save the base CV to update this preview, the PDF, and the next version."
   },
+  "removed": {
+    "items_one": "1 item you selected no longer exists in your profile.",
+    "items_other": "{{count}} items you selected no longer exist in your profile."
+  },
   "version": {
     "title": "Versions",
     "none": "No version saved yet.",

@@ -125,6 +125,11 @@ export function CvWorkspace({ editor }: CvWorkspaceProps) {
         <Stack spacing={3}>
             {formError ? <Alert severity="error">{formError}</Alert> : null}
             {save.isError ? <Alert severity="error">{t('errors.saveFailed')}</Alert> : null}
+            {editor.removedItemCount > 0 ? (
+                <Alert data-test="cv-removed-items" severity="warning">
+                    {t('removed.items', { count: editor.removedItemCount })}
+                </Alert>
+            ) : null}
             <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(0, 1fr)' } }}>
                 <Stack spacing={2}>
                     <Card variant="outlined">

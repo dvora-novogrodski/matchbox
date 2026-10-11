@@ -13,7 +13,7 @@ import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common'
 import { decryptToken, encryptToken } from '../integrations/crypto/token-cipher';
 import { GitHubClient } from '../integrations/github/github-client.port';
 import { ProfileService } from '../profile/profile.service';
-import { catalogFromProfile, composeCvDocument, pruneSelection, selectionFromProfile } from './compose-base-cv';
+import { catalogFromProfile, composeCvDocument, countRemovedIds, pruneSelection, selectionFromProfile } from './compose-base-cv';
 import { BASE_CV_COMMIT_MESSAGE, BASE_CV_HTML_PATH, BASE_CV_JSON_PATH, CV_TOKEN_KEY } from './cv.constants';
 import { CvGithubCredentialsError, CvItemNotFoundError, CvUserNotFoundError, TokenEncryptionUnavailableError } from './cv.errors';
 import { toCvVersion } from './cv.mapper';
@@ -44,10 +44,11 @@ export class CvService {
     }
 
     async saveBaseCv(userId: string, selection: BaseCv): Promise<CvEditor> {
-        const profile = await this.profileService.getProfile(userId);
-        this.assertOwned(profile, selection);
-        await this.cvRepository.saveBaseCv(userId, selection);
-        this.logger.log({ userId, experienceCount: selection.experienceItemIds.length }, 'Base CV saved');
+        const [record, profile] = await Promise.all([this.requireUser(userId), this.profileService.getProfile(userId)]);
+        const stored = BaseCvSchema.safeParse(record.baseCv);
+        const cleaned = this.withoutStaleIds(profile, selection, stored.success ? stored.data : null);
+        await this.cvRepository.saveBaseCv(userId, cleaned);
+        this.logger.log({ userId, experienceCount: cleaned.experienceItemIds.length }, 'Base CV saved');
         return this.getEditor(userId);
     }
 
@@ -108,6 +109,7 @@ export class CvService {
             isCustomized: stored.success,
             catalog: catalogFromProfile(profile),
             latestVersion: latestVersion ? toCvVersion(latestVersion) : null,
+            removedItemCount: stored.success ? countRemovedIds(profile, stored.data) : 0,
             github: {
                 repo: record.githubRepo,
                 connected: Boolean(record.githubRepo && record.githubTokenEncrypted),
@@ -141,25 +143,52 @@ export class CvService {
         });
     }
 
-    private assertOwned(profile: Profile, selection: BaseCv): void {
-        this.assertIds(selection.experienceItemIds, profile.experience.map((item) => item.id));
-        this.assertIds(selection.projectItemIds, profile.projects.map((item) => item.id));
-        this.assertIds(selection.skillIds, profile.skills.map((skill) => skill.id));
-        this.assertIds(selection.educationItemIds, profile.education.map((item) => item.id));
+    private withoutStaleIds(profile: Profile, selection: BaseCv, previous: BaseCv | null): BaseCv {
+        return {
+            ...selection,
+            experienceItemIds: this.resolveIds(
+                selection.experienceItemIds,
+                profile.experience.map((item) => item.id),
+                previous?.experienceItemIds ?? [],
+            ),
+            projectItemIds: this.resolveIds(
+                selection.projectItemIds,
+                profile.projects.map((item) => item.id),
+                previous?.projectItemIds ?? [],
+            ),
+            skillIds: this.resolveIds(
+                selection.skillIds,
+                profile.skills.map((skill) => skill.id),
+                previous?.skillIds ?? [],
+            ),
+            educationItemIds: this.resolveIds(
+                selection.educationItemIds,
+                profile.education.map((item) => item.id),
+                previous?.educationItemIds ?? [],
+            ),
+        };
     }
 
-    private assertIds(ids: string[], allowed: string[]): void {
-        const allowedSet = new Set(allowed);
+    private resolveIds(ids: string[], owned: string[], previouslyStored: string[]): string[] {
+        const ownedSet = new Set(owned);
+        const previousSet = new Set(previouslyStored);
         const seen = new Set<string>();
+        const kept: string[] = [];
         for (const id of ids) {
             if (seen.has(id)) {
                 throw new BadRequestException('Each career item can appear only once');
             }
             seen.add(id);
-            if (!allowedSet.has(id)) {
-                throw new CvItemNotFoundError(id);
+            if (ownedSet.has(id)) {
+                kept.push(id);
+                continue;
             }
+            if (previousSet.has(id)) {
+                continue;
+            }
+            throw new CvItemNotFoundError(id);
         }
+        return kept;
     }
 
     private async requireUser(userId: string): Promise<UserCvRecord> {

@@ -54,6 +54,7 @@ export function sampleCvEditor(overrides: Partial<CvEditor> = {}): CvEditor {
             education: [],
         },
         latestVersion: null,
+        removedItemCount: 0,
         github: { repo: null, connected: false },
         templateId: 'default',
         ...overrides,

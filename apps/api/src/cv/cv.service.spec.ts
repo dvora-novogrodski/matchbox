@@ -1,4 +1,4 @@
-import { DEFAULT_CV_TEMPLATE_ID, type Profile } from '@matchbox/shared';
+import { type BaseCv, DEFAULT_CV_TEMPLATE_ID, type Profile } from '@matchbox/shared';
 import { BadRequestException } from '@nestjs/common';
 
 import { decryptToken, encryptToken } from '../integrations/crypto/token-cipher';
@@ -13,7 +13,26 @@ import type { StoredCvVersion, UserCvRecord } from './types/cv.types';
 
 const USER_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd123';
 const ITEM_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd124';
+const MISSING_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd199';
 const KEY = Buffer.alloc(32, 7);
+
+function selection(experienceItemIds: string[]): BaseCv {
+    return {
+        header: {
+            fullName: 'Ada Lovelace',
+            headline: null,
+            email: null,
+            phone: null,
+            location: null,
+            links: [],
+        },
+        summary: '',
+        experienceItemIds,
+        projectItemIds: [],
+        skillIds: [],
+        educationItemIds: [],
+    };
+}
 
 const profile: Profile = {
     experience: [
@@ -73,29 +92,55 @@ describe('CvService', () => {
         expect(editor.selection.header.fullName).toBe('Ada Lovelace');
         expect(editor.document.experience.map((entry) => entry.title)).toEqual(['Engineer']);
         expect(editor.isCustomized).toBe(false);
+        expect(editor.removedItemCount).toBe(0);
         expect(editor.templateId).toBe(DEFAULT_CV_TEMPLATE_ID);
         expect(editor.html).toContain('Engineer');
     });
 
     it('should reject a selection that references another users item', async () => {
-        const selection = {
-            header: {
-                fullName: 'Ada Lovelace',
-                headline: null,
-                email: null,
-                phone: null,
-                location: null,
-                links: [],
-            },
-            summary: '',
-            experienceItemIds: ['0199bcdf-20fc-744f-bc8b-6ef7c25cd199'],
-            projectItemIds: [],
-            skillIds: [],
-            educationItemIds: [],
-        };
-
-        await expect(service.saveBaseCv(USER_ID, selection)).rejects.toBeInstanceOf(CvItemNotFoundError);
+        await expect(service.saveBaseCv(USER_ID, selection([MISSING_ID]))).rejects.toBeInstanceOf(CvItemNotFoundError);
         expect(repository.saveBaseCv.mock.calls).toHaveLength(0);
+    });
+
+    it('should skip a deleted profile item in the preview and the next snapshot', async () => {
+        repository.findUserCvRecord.mockResolvedValue({
+            ...record,
+            baseCv: selection([ITEM_ID, MISSING_ID]),
+        });
+        repository.createBaseVersion.mockResolvedValue({
+            id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd301',
+            isBase: true,
+            templateId: DEFAULT_CV_TEMPLATE_ID,
+            gitPath: BASE_CV_JSON_PATH,
+            commitSha: null,
+            createdAt: new Date('2026-10-10T12:00:00.000Z'),
+        });
+
+        const editor = await service.getEditor(USER_ID);
+
+        expect(editor.removedItemCount).toBe(1);
+        expect(editor.selection.experienceItemIds).toEqual([ITEM_ID]);
+        expect(editor.document.experience.map((entry) => entry.careerItemId)).toEqual([ITEM_ID]);
+        expect(editor.html).not.toContain(MISSING_ID);
+
+        await service.saveBaseVersion(USER_ID);
+
+        const savedDocument = repository.createBaseVersion.mock.calls[0]?.[1].document;
+        expect(savedDocument?.experience.map((entry) => entry.careerItemId)).toEqual([ITEM_ID]);
+    });
+
+    it('should drop a stored id that no longer exists and reject one that was never stored', async () => {
+        repository.findUserCvRecord.mockResolvedValue({
+            ...record,
+            baseCv: selection([ITEM_ID, MISSING_ID]),
+        });
+
+        await service.saveBaseCv(USER_ID, selection([ITEM_ID, MISSING_ID]));
+
+        expect(repository.saveBaseCv.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ experienceItemIds: [ITEM_ID] }));
+        await expect(service.saveBaseCv(USER_ID, selection(['0199bcdf-20fc-744f-bc8b-6ef7c25cd198']))).rejects.toBeInstanceOf(
+            CvItemNotFoundError,
+        );
     });
 
     it('should save a local version when GitHub is not connected', async () => {

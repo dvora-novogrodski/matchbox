@@ -175,6 +175,137 @@ describe('CV (e2e)', () => {
         expect(response.statusCode).toBe(404);
     });
 
+    it('should skip a deleted profile item in the preview and the saved version', async () => {
+        const kept = ProfileExperienceSchema.parse(
+            (
+                await app.inject({
+                    method: 'POST',
+                    url: '/api/v1/profile/experience',
+                    headers: { authorization: 'Bearer user-one-token' },
+                    payload: { title: 'Kept role', bullets: [] },
+                })
+            ).json(),
+        );
+        const removed = ProfileExperienceSchema.parse(
+            (
+                await app.inject({
+                    method: 'POST',
+                    url: '/api/v1/profile/experience',
+                    headers: { authorization: 'Bearer user-one-token' },
+                    payload: { title: 'Removed role', bullets: [] },
+                })
+            ).json(),
+        );
+        const current = CvEditorSchema.parse(
+            (
+                await app.inject({
+                    method: 'GET',
+                    url: '/api/v1/cv',
+                    headers: { authorization: 'Bearer user-one-token' },
+                })
+            ).json(),
+        );
+        await app.inject({
+            method: 'PUT',
+            url: '/api/v1/cv',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: { ...current.selection, experienceItemIds: [kept.id, removed.id] },
+        });
+        const deleted = await app.inject({
+            method: 'DELETE',
+            url: `/api/v1/profile/experience/${removed.id}`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+        expect(deleted.statusCode).toBe(204);
+
+        const editor = CvEditorSchema.parse(
+            (
+                await app.inject({
+                    method: 'GET',
+                    url: '/api/v1/cv',
+                    headers: { authorization: 'Bearer user-one-token' },
+                })
+            ).json(),
+        );
+        expect(editor.removedItemCount).toBe(1);
+        expect(editor.document.experience.map((entry) => entry.careerItemId)).toEqual([kept.id]);
+        expect(editor.html).not.toContain('Removed role');
+
+        const versionResponse = await app.inject({
+            method: 'POST',
+            url: '/api/v1/cv/versions',
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+        expect(versionResponse.statusCode).toBe(201);
+        const stored = await prisma.cvVersion.findFirstOrThrow();
+        const document = stored.cv as { experience: { careerItemId: string }[] };
+        expect(document.experience.map((entry) => entry.careerItemId)).toEqual([kept.id]);
+    });
+
+    it('should drop a stored id that no longer exists and reject one that was never stored', async () => {
+        const kept = ProfileExperienceSchema.parse(
+            (
+                await app.inject({
+                    method: 'POST',
+                    url: '/api/v1/profile/experience',
+                    headers: { authorization: 'Bearer user-one-token' },
+                    payload: { title: 'Kept role', bullets: [] },
+                })
+            ).json(),
+        );
+        const removed = ProfileExperienceSchema.parse(
+            (
+                await app.inject({
+                    method: 'POST',
+                    url: '/api/v1/profile/experience',
+                    headers: { authorization: 'Bearer user-one-token' },
+                    payload: { title: 'Removed role', bullets: [] },
+                })
+            ).json(),
+        );
+        const current = CvEditorSchema.parse(
+            (
+                await app.inject({
+                    method: 'GET',
+                    url: '/api/v1/cv',
+                    headers: { authorization: 'Bearer user-one-token' },
+                })
+            ).json(),
+        );
+        await app.inject({
+            method: 'PUT',
+            url: '/api/v1/cv',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: { ...current.selection, experienceItemIds: [kept.id, removed.id] },
+        });
+        await app.inject({
+            method: 'DELETE',
+            url: `/api/v1/profile/experience/${removed.id}`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+
+        const cleaned = CvEditorSchema.parse(
+            (
+                await app.inject({
+                    method: 'PUT',
+                    url: '/api/v1/cv',
+                    headers: { authorization: 'Bearer user-one-token' },
+                    payload: { ...current.selection, experienceItemIds: [kept.id, removed.id] },
+                })
+            ).json(),
+        );
+        expect(cleaned.selection.experienceItemIds).toEqual([kept.id]);
+        expect(cleaned.removedItemCount).toBe(0);
+
+        const foreign = await app.inject({
+            method: 'PUT',
+            url: '/api/v1/cv',
+            headers: { authorization: 'Bearer user-one-token' },
+            payload: { ...cleaned.selection, experienceItemIds: ['0199bcdf-20fc-744f-bc8b-6ef7c25cd198'] },
+        });
+        expect(foreign.statusCode).toBe(404);
+    });
+
     it('should reject an empty name', async () => {
         const response = await app.inject({
             method: 'PUT',

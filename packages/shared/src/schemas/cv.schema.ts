@@ -124,6 +124,7 @@ export const CvEditorSchema = z.object({
     isCustomized: z.boolean(),
     catalog: CvCatalogSchema,
     latestVersion: CvVersionSchema.nullable(),
+    removedItemCount: z.number().int().nonnegative(),
     github: CvGithubStatusSchema,
     templateId: z.literal(DEFAULT_CV_TEMPLATE_ID),
 });
