@@ -35,6 +35,43 @@ Format:
 - **scope** (optional): `web`, `api`, `ai`, `ui`, `shared`, `infra`, `docs`, or a feature id like `f2`
 - Only commit when the user asks, or when the plan says to. Never commit `.env` or secrets.
 - Never use `--no-verify`, never amend or force-push commits that were already pushed.
+- Before committing, run the checks job of every app workflow whose path filter matches the files in the commit (section 2.1). Do not commit while any of those commands is failing.
+
+### 2.1 Run app CI before the commit
+
+Match the staged (or about-to-be-staged) paths against `.github/workflows/`. Run each matching workflow's checks from the repo root, in the order the workflow lists them. A shared file can match more than one workflow; run each of those workflows once. Skip a workflow when none of its paths are in the commit (docs-only and skill-only commits run nothing).
+
+**API** — `api.yml`, when the commit touches `.github/workflows/api.yml`, `.dockerignore`, `.nvmrc`, `apps/api/**`, `eslint.config.mjs`, `package.json`, `package-lock.json`, `packages/ai-client/**`, or `packages/shared/**`:
+
+```bash
+npm run lint:ci -w @matchbox/api -w @matchbox/shared
+npm run typecheck -w @matchbox/api -w @matchbox/shared
+npm test -w @matchbox/api
+npm run test:e2e -w @matchbox/api
+npm run build -w @matchbox/api
+```
+
+**Web** — `web.yml`, when the commit touches `.github/workflows/web.yml`, `.nvmrc`, `apps/web/**`, `eslint.config.mjs`, `package.json`, `package-lock.json`, `packages/shared/**`, or `packages/ui/**`:
+
+```bash
+npm run lint:ci -w @matchbox/web -w @matchbox/ui -w @matchbox/shared
+npm run typecheck -w @matchbox/web -w @matchbox/ui -w @matchbox/shared
+npm test -w @matchbox/web
+npm run build -w @matchbox/web
+```
+
+**AI** — `ai.yml`, when the commit touches `.github/workflows/ai.yml` or `services/ai/**`. Run these in `services/ai`:
+
+```bash
+ruff check app tests
+ruff format --check app tests
+mypy app tests
+pytest --cov=app --cov-report=term-missing
+```
+
+When the commit changes `apps/api/Dockerfile` or `.dockerignore`, also run `docker build --file apps/api/Dockerfile --tag matchbox-api:ci .`. When it changes `services/ai/Dockerfile`, also run `docker build --tag matchbox-ai:ci services/ai`.
+
+If a command fails, fix the failure and re-run that workflow's checks before committing. These commands are the CI checks (`lint:ci`, not `lint`, so the run does not rewrite files).
 
 When the working tree holds more than one feature, split it: one commit per feature, staging only that feature's files. If one file has changes for several features (READMEs, `package.json`), stage only the relevant lines. Shared generated files that cannot be split (`package-lock.json`) go with the feature that needs them most; say so to the user.
 
@@ -79,7 +116,7 @@ Push, PR creation, and remote branch deletion only when the user asks. If a PR i
 
 ## Checklist before merging
 
-- [ ] Tests/lint for the touched deployables pass
+- [ ] App CI from section 2.1 passed for every workflow the commit touches
 - [ ] `git status` is clean, no stray files
 - [ ] `git log master..<branch>` shows exactly one commit per feature
 - [ ] Each commit message names its feature, not the last small step
