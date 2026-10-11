@@ -4,12 +4,14 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 
 import { AppConfig } from './app.config';
+import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
 import { validate } from './common/config/env.validation';
 import { HealthModule } from './common/health/health.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { CvModule } from './cv/cv.module';
 import { ProfileModule } from './profile/profile.module';
+import { StatusesModule } from './statuses/statuses.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { ProfileModule } from './profile/profile.module';
     AuthModule,
     ProfileModule,
     CvModule,
+    StatusesModule,
+    ApplicationsModule,
   ],
   providers: [
     AppConfig,

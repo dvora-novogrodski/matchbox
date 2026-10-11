@@ -1,0 +1,35 @@
+{
+  "page": {
+    "title": "Pipeline",
+    "description": "Applications grouped by status."
+  },
+  "view": {
+    "label": "Pipeline view",
+    "board": "Board",
+    "table": "Table"
+  },
+  "empty": "No applications yet. Jobs you save will show up here.",
+  "board": {
+    "emptyColumn": "Nothing here",
+    "count_one": "{{count}} application",
+    "count_other": "{{count}} applications"
+  },
+  "card": {
+    "move": "Move",
+    "moveTo": "Move {{title}}",
+    "lastActivity": "Last activity {{when}}"
+  },
+  "table": {
+    "company": "Company",
+    "role": "Role",
+    "status": "Status",
+    "statusFor": "Status for {{title}}",
+    "lastActivity": "Last activity",
+    "applied": "Applied",
+    "appliedEmpty": "Not yet"
+  },
+  "errors": {
+    "loadFailed": "Applications could not be loaded. Please try again.",
+    "statusFailed": "The status could not be changed. Please try again."
+  }
+}

@@ -4,6 +4,7 @@
     "signedInAs": "Signed in as {{email}}"
   },
   "actions": {
+    "openPipeline": "Open pipeline",
     "openCareerProfile": "Open career profile",
     "openCv": "Open CV",
     "signOut": "Sign out"

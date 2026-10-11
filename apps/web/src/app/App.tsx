@@ -24,6 +24,15 @@ export function App() {
         )}
         {signOut.isError ? <Alert severity="error">{t('errors.signOutFailed')}</Alert> : null}
         <Button
+          data-test="app-pipeline-button"
+          onClick={() => {
+            void navigate('/pipeline');
+          }}
+          variant="contained"
+        >
+          {t('actions.openPipeline')}
+        </Button>
+        <Button
           data-test="app-career-profile-button"
           onClick={() => {
             void navigate('/profile');
