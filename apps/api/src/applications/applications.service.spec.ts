@@ -3,7 +3,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { StatusNotFoundError } from '../statuses/statuses.errors';
 import type { StatusesRepository } from '../statuses/statuses.repository';
 import type { StatusRecord } from '../statuses/types/statuses.types';
-import { ApplicationAlreadyExistsError, ApplicationNotFoundError } from './applications.errors';
+import { ApplicationAlreadyExistsError, ApplicationNotFoundError, StoredMatchInvalidError } from './applications.errors';
 import type { ApplicationsRepository } from './applications.repository';
 import { ApplicationsService } from './applications.service';
 import type { ApplicationRecord, JobPageRecord } from './types/applications.types';
@@ -57,6 +57,7 @@ describe('ApplicationsService', () => {
         changeStatus: jest.fn(),
         updateDetails: jest.fn(),
         createManual: jest.fn(),
+        findMatchByJobId: jest.fn(),
     } as jest.Mocked<ApplicationsRepository>;
     const statusesRepository = {
         listVisible: jest.fn(),
@@ -104,6 +105,7 @@ describe('ApplicationsService', () => {
         const page: JobPageRecord = {
             application,
             description: 'Build things',
+            requirements: null,
             events: [
                 {
                     id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd131',
@@ -143,6 +145,7 @@ describe('ApplicationsService', () => {
                 updatedAt: '2026-10-01T09:00:00.000Z',
             },
             description: 'Build things',
+            requirements: [],
             events: [
                 {
                     id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd131',
@@ -506,5 +509,68 @@ describe('ApplicationsService', () => {
             }),
         ).rejects.toBeInstanceOf(InternalServerErrorException);
         expect(applicationsRepository.createManual.mock.calls).toEqual([]);
+    });
+
+    it('should return a stored match for the current user', async () => {
+        const requirementId = '0199bcdf-20fc-744f-bc8b-6ef7c25cd140';
+        applicationsRepository.findMatchByJobId.mockResolvedValue({
+            kind: 'found',
+            match: {
+                score: 80,
+                coverage: [
+                    {
+                        requirement_index: 0,
+                        coverage: 'covered',
+                        evidence_ids: [requirementId],
+                        reason: 'Listed on the profile',
+                    },
+                ],
+                model: 'test',
+                promptVersion: 'match-1',
+            },
+        });
+
+        await expect(service.getMatch(USER_ID, '0199bcdf-20fc-744f-bc8b-6ef7c25cd127')).resolves.toEqual({
+            match: {
+                score: 80,
+                requirements: [
+                    {
+                        requirement_index: 0,
+                        coverage: 'covered',
+                        evidence_ids: [requirementId],
+                        reason: 'Listed on the profile',
+                    },
+                ],
+                model: 'test',
+                promptVersion: 'match-1',
+            },
+        });
+    });
+
+    it('should reject a match when the current user has no application', async () => {
+        applicationsRepository.findMatchByJobId.mockResolvedValue({ kind: 'not-found' });
+
+        await expect(service.getMatch(USER_ID, '0199bcdf-20fc-744f-bc8b-6ef7c25cd127')).rejects.toBeInstanceOf(
+            ApplicationNotFoundError,
+        );
+    });
+
+    it('should return an empty match when none is stored', async () => {
+        applicationsRepository.findMatchByJobId.mockResolvedValue({ kind: 'none' });
+
+        await expect(service.getMatch(USER_ID, '0199bcdf-20fc-744f-bc8b-6ef7c25cd127')).resolves.toEqual({
+            match: null,
+        });
+    });
+
+    it('should reject a stored match that does not match the analysis contract', async () => {
+        applicationsRepository.findMatchByJobId.mockResolvedValue({
+            kind: 'found',
+            match: { score: 80, coverage: { unexpected: true }, model: 'test', promptVersion: 'match-1' },
+        });
+
+        await expect(service.getMatch(USER_ID, '0199bcdf-20fc-744f-bc8b-6ef7c25cd127')).rejects.toBeInstanceOf(
+            StoredMatchInvalidError,
+        );
     });
 });

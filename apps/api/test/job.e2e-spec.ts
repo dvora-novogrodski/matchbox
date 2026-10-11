@@ -1,4 +1,4 @@
-import { ApplicationSchema, CurrentUserSchema, JobPageSchema } from '@matchbox/shared';
+import { ApplicationSchema, CurrentUserSchema, JobMatchResponseSchema, JobPageSchema } from '@matchbox/shared';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 
@@ -430,5 +430,134 @@ describe('Job page (e2e)', () => {
         });
 
         expect(response.statusCode).toBe(400);
+    });
+
+    it('should return a stored match for the current user', async () => {
+        const user = await signIn('user-one-token');
+        const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
+        const job = await prisma.job.create({
+            data: {
+                source: 'manual',
+                requirements: [{ text: 'TypeScript', kind: 'must', category: 'skill', hard: false }],
+            },
+        });
+        await prisma.application.create({
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
+        });
+        await prisma.jobMatch.create({
+            data: {
+                userId: user.id,
+                jobId: job.id,
+                score: 75,
+                coverage: [
+                    {
+                        requirement_index: 0,
+                        coverage: 'covered',
+                        evidence_ids: [],
+                        reason: 'Listed on the profile',
+                    },
+                ],
+                inputHash: 'hash',
+                model: 'test',
+                promptVersion: 'match-1',
+            },
+        });
+
+        const response = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${job.id}/match`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(JobMatchResponseSchema.parse(response.json())).toEqual({
+            match: {
+                score: 75,
+                model: 'test',
+                promptVersion: 'match-1',
+                requirements: [
+                    {
+                        requirement_index: 0,
+                        coverage: 'covered',
+                        evidence_ids: [],
+                        reason: 'Listed on the profile',
+                    },
+                ],
+            },
+        });
+
+        const page = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${job.id}`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+        expect(JobPageSchema.parse(page.json()).requirements).toEqual([
+            { text: 'TypeScript', kind: 'must', category: 'skill', hard: false },
+        ]);
+    });
+
+    it('should return an empty match when none is stored', async () => {
+        const user = await signIn('user-one-token');
+        const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
+        const job = await prisma.job.create({ data: { source: 'manual' } });
+        await prisma.application.create({
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
+        });
+
+        const response = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${job.id}/match`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json()).toEqual({ match: null });
+    });
+
+    it('should reject a stored match that does not match the analysis contract', async () => {
+        const user = await signIn('user-one-token');
+        const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
+        const job = await prisma.job.create({ data: { source: 'manual' } });
+        await prisma.application.create({
+            data: { userId: user.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
+        });
+        await prisma.jobMatch.create({
+            data: {
+                userId: user.id,
+                jobId: job.id,
+                score: 75,
+                coverage: { unexpected: true },
+                inputHash: 'hash',
+                model: 'test',
+                promptVersion: 'match-1',
+            },
+        });
+
+        const response = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${job.id}/match`,
+            headers: { authorization: 'Bearer user-one-token' },
+        });
+
+        expect(response.statusCode).toBe(500);
+        expect(response.json()).toMatchObject({ code: 'MATCH_DATA_INVALID' });
+    });
+
+    it('should not return another users match', async () => {
+        const userOne = await signIn('user-one-token');
+        await signIn('user-two-token');
+        const saved = await prisma.statusDef.findFirstOrThrow({ where: { key: 'saved' } });
+        const job = await prisma.job.create({ data: { source: 'manual' } });
+        await prisma.application.create({
+            data: { userId: userOne.id, jobId: job.id, statusId: saved.id, companyName: 'Acme', title: 'Engineer' },
+        });
+
+        const response = await app.inject({
+            method: 'GET',
+            url: `/api/v1/jobs/${job.id}/match`,
+            headers: { authorization: 'Bearer user-two-token' },
+        });
+
+        expect(response.statusCode).toBe(404);
     });
 });

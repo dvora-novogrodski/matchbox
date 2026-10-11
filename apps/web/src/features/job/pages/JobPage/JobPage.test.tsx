@@ -51,7 +51,7 @@ describe('JobPage', () => {
         expect(await screen.findByText('This job is not in your pipeline.')).toBeInTheDocument();
     });
 
-    it('should show the posting and hide match analysis', async () => {
+    it('should show the posting and the match tab', async () => {
         server.use(...createJobHandlers());
 
         renderJobPage();
@@ -61,10 +61,10 @@ describe('JobPage', () => {
         expect(screen.getByText('Build things')).toBeInTheDocument();
         expect(screen.getByText('Hybrid')).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'Overview' })).toBeInTheDocument();
+        expect(screen.getByRole('tab', { name: 'Match' })).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'CV' })).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'Application kit' })).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'Timeline' })).toBeInTheDocument();
-        expect(screen.queryByRole('tab', { name: 'Match' })).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Tailor CV' })).toBeInTheDocument();
     });
 
@@ -128,9 +128,123 @@ describe('JobPage', () => {
     it('should ignore a tab that is not part of the job page', async () => {
         server.use(...createJobHandlers());
 
-        renderJobPage(`/jobs/${jobId}/match`);
+        renderJobPage(`/jobs/${jobId}/notes`);
 
         expect(await screen.findByRole('tab', { name: 'Overview', selected: true })).toBeInTheDocument();
-        expect(screen.queryByRole('tab', { name: 'Match' })).not.toBeInTheDocument();
+    });
+
+    it('should show a stored match on the match tab', async () => {
+        server.use(
+            http.get('http://localhost:3000/api/v1/jobs/:jobId/match', () =>
+                HttpResponse.json({
+                    match: {
+                        score: 80,
+                        requirements: [
+                            {
+                                requirement_index: 0,
+                                coverage: 'covered',
+                                evidence_ids: [],
+                                reason: 'Listed on the profile',
+                            },
+                        ],
+                        model: 'test',
+                        promptVersion: 'match-1',
+                    },
+                }),
+            ),
+            ...createJobHandlers(
+                sampleJobPage({
+                    requirements: [{ text: 'TypeScript', kind: 'must', category: 'skill', hard: false }],
+                }),
+            ),
+        );
+
+        renderJobPage(`/jobs/${jobId}/match`);
+
+        expect(await screen.findByText('Score 80')).toBeInTheDocument();
+        expect(screen.getByText('TypeScript')).toBeInTheDocument();
+        expect(screen.getByText('Covered')).toBeInTheDocument();
+        expect(screen.getByText('Listed on the profile')).toBeInTheDocument();
+    });
+
+    it('should show a fallback when a matched requirement is no longer on the job', async () => {
+        server.use(
+            http.get('http://localhost:3000/api/v1/jobs/:jobId/match', () =>
+                HttpResponse.json({
+                    match: {
+                        score: 40,
+                        requirements: [
+                            {
+                                requirement_index: 3,
+                                coverage: 'missing',
+                                evidence_ids: [],
+                                reason: 'No longer listed',
+                            },
+                        ],
+                        model: 'test',
+                        promptVersion: 'match-1',
+                    },
+                }),
+            ),
+            ...createJobHandlers(
+                sampleJobPage({
+                    requirements: [{ text: 'TypeScript', kind: 'must', category: 'skill', hard: false }],
+                }),
+            ),
+        );
+
+        renderJobPage(`/jobs/${jobId}/match`);
+
+        expect(await screen.findByText('Requirement no longer on this job')).toBeInTheDocument();
+        expect(screen.getByText('No longer listed')).toBeInTheDocument();
+        expect(screen.queryByText('TypeScript')).not.toBeInTheDocument();
+    });
+
+    it('should show an empty state when the job has not been analyzed', async () => {
+        const user = userEvent.setup();
+        server.use(...createJobHandlers());
+
+        renderJobPage(`/jobs/${jobId}/match`);
+
+        expect(await screen.findByText('Not analyzed yet')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
+        await user.click(screen.getByRole('tab', { name: 'Overview' }));
+        expect(await screen.findByText('Build things')).toBeInTheDocument();
+    });
+
+    it('should show a load error when the stored match cannot be read', async () => {
+        server.use(
+            http.get('http://localhost:3000/api/v1/jobs/:jobId/match', () =>
+                HttpResponse.json({ statusCode: 500, code: 'MATCH_DATA_INVALID', message: 'Stored match could not be read' }, { status: 500 }),
+            ),
+            ...createJobHandlers(),
+        );
+
+        renderJobPage(`/jobs/${jobId}/match`);
+
+        expect(await screen.findByText('Match analysis could not be loaded. Please try again.')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
+    });
+
+    it('should keep the job page usable when match analysis is unavailable', async () => {
+        const user = userEvent.setup();
+        server.use(
+            http.get('http://localhost:3000/api/v1/jobs/:jobId/match', () =>
+                HttpResponse.json(
+                    { statusCode: 503, code: 'AI_UNAVAILABLE', message: 'Match analysis is unavailable' },
+                    { status: 503 },
+                ),
+            ),
+            ...createJobHandlers(),
+        );
+
+        renderJobPage(`/jobs/${jobId}/match`);
+
+        expect(await screen.findByText('Match analysis unavailable. Try again.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
+        await user.click(screen.getByRole('tab', { name: 'Overview' }));
+        expect(await screen.findByText('Build things')).toBeInTheDocument();
     });
 });

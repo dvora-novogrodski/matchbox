@@ -12,6 +12,7 @@ import type {
     CreateManualJobResult,
     JobPageRecord,
     ManualJobDraft,
+    MatchLookup,
 } from './types/applications.types';
 
 const applicationInclude = {
@@ -59,6 +60,7 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
         return {
             application: this.toApplication(application),
             description: application.description,
+            requirements: application.job.requirements,
             events: application.events.map((event) => ({
                 id: event.id,
                 type: toEventType(event.type),
@@ -71,6 +73,32 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
                 commitSha: version.commitSha,
                 createdAt: version.createdAt,
             })),
+        };
+    }
+
+    async findMatchByJobId(userId: string, jobId: string): Promise<MatchLookup> {
+        const application = await this.prisma.application.findFirst({
+            where: { userId, jobId },
+            select: { id: true },
+        });
+        if (!application) {
+            return { kind: 'not-found' };
+        }
+
+        const match = await this.prisma.jobMatch.findUnique({
+            where: { userId_jobId: { userId, jobId } },
+        });
+        if (!match) {
+            return { kind: 'none' };
+        }
+        return {
+            kind: 'found',
+            match: {
+                score: match.score,
+                coverage: match.coverage,
+                model: match.model,
+                promptVersion: match.promptVersion,
+            },
         };
     }
 

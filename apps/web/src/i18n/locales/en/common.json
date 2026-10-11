@@ -9,6 +9,9 @@
     "openCv": "Open CV",
     "signOut": "Sign out"
   },
+  "ai": {
+    "tryAgain": "Try again"
+  },
   "errors": {
     "profileUnavailable": "Your profile could not be loaded. Please try again.",
     "signOutFailed": "You could not be signed out. Please try again."

@@ -16,6 +16,7 @@ export function sampleJobPage(overrides: Partial<JobPage> = {}): JobPage {
     return JobPageSchema.parse({
         application: sampleApplication(),
         description: 'Build things',
+        requirements: [],
         events: [],
         cvVersions: [],
         ...overrides,
@@ -36,6 +37,7 @@ export function createJobHandlers(page: JobPage = sampleJobPage(), statuses: Sta
 
     return [
         http.get(`${baseUrl}/statuses`, () => HttpResponse.json(StatusListSchema.parse({ items: state.statuses }))),
+        http.get(`${baseUrl}/jobs/:jobId/match`, () => HttpResponse.json({ match: null })),
         http.get(`${baseUrl}/jobs/:jobId`, ({ params }) => {
             if (params.jobId !== state.page.application.job.id) {
                 return HttpResponse.json(

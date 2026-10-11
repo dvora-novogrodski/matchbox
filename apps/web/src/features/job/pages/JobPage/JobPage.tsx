@@ -20,6 +20,7 @@ import { ApiError } from 'src/lib/http/http-client';
 import { useChangeJobStatus, useJobPage, useUpdateApplication } from '../../api/job.queries';
 import { CvPanel } from '../../components/CvPanel';
 import { KitPanel } from '../../components/KitPanel';
+import { MatchPanel } from '../../components/MatchPanel';
 import { OverviewPanel } from '../../components/OverviewPanel';
 import { TimelinePanel } from '../../components/TimelinePanel';
 import { type JobPrimaryAction, jobPrimaryAction } from '../../job-action';
@@ -214,6 +215,7 @@ function JobContent({
                 value={tab}
             >
                 <Tab data-test="job-tab-overview" label={t('tabs.overview')} value="overview" />
+                <Tab data-test="job-tab-match" label={t('tabs.match')} value="match" />
                 <Tab data-test="job-tab-cv" label={t('tabs.cv')} value="cv" />
                 <Tab data-test="job-tab-kit" label={t('tabs.kit')} value="kit" />
                 <Tab data-test="job-tab-timeline" label={t('tabs.timeline')} value="timeline" />
@@ -229,6 +231,7 @@ function JobContent({
                     statuses={statuses}
                 />
             ) : null}
+            {tab === 'match' ? <MatchPanel jobId={application.job.id} requirements={page.requirements} /> : null}
             {tab === 'cv' ? <CvPanel versions={page.cvVersions} /> : null}
             {tab === 'kit' ? <KitPanel companyName={application.job.companyName} title={application.job.title} /> : null}
             {tab === 'timeline' ? <TimelinePanel events={page.events} statuses={statuses} /> : null}

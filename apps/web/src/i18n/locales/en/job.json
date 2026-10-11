@@ -12,9 +12,20 @@
   "tabs": {
     "label": "Job sections",
     "overview": "Overview",
+    "match": "Match",
     "cv": "CV",
     "kit": "Application kit",
     "timeline": "Timeline"
+  },
+  "match": {
+    "empty": "Not analyzed yet",
+    "unavailable": "Match analysis unavailable. Try again.",
+    "loadFailed": "Match analysis could not be loaded. Please try again.",
+    "requirementUnavailable": "Requirement no longer on this job",
+    "score": "Score {{score}}",
+    "covered": "Covered",
+    "partial": "Partial",
+    "missing": "Missing"
   },
   "overview": {
     "description": "Posting",

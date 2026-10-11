@@ -1,4 +1,5 @@
-import type { Application, ApplicationEvent, ApplicationList, JobPage } from '@matchbox/shared';
+import type { Application, ApplicationEvent, ApplicationList, JobPage, JobRequirement } from '@matchbox/shared';
+import { JobRequirementSchema } from '@matchbox/shared';
 import { z } from 'zod';
 
 import { toStatus } from '../statuses/statuses.mapper';
@@ -36,6 +37,7 @@ export function toJobPage(page: JobPageRecord): JobPage {
     return {
         application: toApplication(page.application),
         description: page.description,
+        requirements: toJobRequirements(page.requirements),
         events: page.events.map(toApplicationEvent),
         cvVersions: page.cvVersions.map((version) => ({
             id: version.id,
@@ -44,6 +46,11 @@ export function toJobPage(page: JobPageRecord): JobPage {
             createdAt: version.createdAt.toISOString(),
         })),
     };
+}
+
+function toJobRequirements(value: unknown): JobRequirement[] {
+    const parsed = z.array(JobRequirementSchema).safeParse(value);
+    return parsed.success ? parsed.data : [];
 }
 
 function toApplicationEvent(event: ApplicationEventRecord): ApplicationEvent {

@@ -3,6 +3,17 @@ import { z } from 'zod';
 import { WORK_MODES } from '../constants/domain';
 import { ApplicationSchema } from './pipeline.schema';
 
+export const REQUIREMENT_KINDS = ['must', 'nice'] as const;
+export const REQUIREMENT_CATEGORIES = ['skill', 'experience', 'education', 'domain', 'location', 'other'] as const;
+
+export const JobRequirementSchema = z.object({
+    text: z.string(),
+    kind: z.enum(REQUIREMENT_KINDS),
+    category: z.enum(REQUIREMENT_CATEGORIES),
+    hard: z.boolean(),
+});
+export type JobRequirement = z.infer<typeof JobRequirementSchema>;
+
 const eventFields = {
     id: z.uuid(),
     occurredAt: z.iso.datetime(),
@@ -56,6 +67,7 @@ export type ApplicationCvVersionSummary = z.infer<typeof ApplicationCvVersionSum
 export const JobPageSchema = z.object({
     application: ApplicationSchema,
     description: z.string().nullable(),
+    requirements: z.array(JobRequirementSchema),
     events: z.array(ApplicationEventSchema),
     cvVersions: z.array(ApplicationCvVersionSummarySchema),
 });

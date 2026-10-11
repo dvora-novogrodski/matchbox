@@ -1,10 +1,11 @@
-import type { Application, ApplicationList, CreateManualJob, JobPage, StatusCategory, UpdateApplication } from '@matchbox/shared';
+import type { Application, ApplicationList, CreateManualJob, JobMatchResponse, JobPage, StatusCategory, UpdateApplication } from '@matchbox/shared';
+import { JobMatchSchema } from '@matchbox/shared';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 
 import { normalizeJobUrl } from '../jobs/normalize-job-url';
 import { StatusNotFoundError } from '../statuses/statuses.errors';
 import { StatusesRepository } from '../statuses/statuses.repository';
-import { ApplicationAlreadyExistsError, ApplicationNotFoundError } from './applications.errors';
+import { ApplicationAlreadyExistsError, ApplicationNotFoundError, StoredMatchInvalidError } from './applications.errors';
 import { toApplication, toApplicationList, toJobPage } from './applications.mapper';
 import { ApplicationsRepository } from './applications.repository';
 import type { ManualJobDraft } from './types/applications.types';
@@ -31,6 +32,28 @@ export class ApplicationsService {
             throw new ApplicationNotFoundError(jobId);
         }
         return toJobPage(page);
+    }
+
+    async getMatch(userId: string, jobId: string): Promise<JobMatchResponse> {
+        const lookup = await this.applicationsRepository.findMatchByJobId(userId, jobId);
+        if (lookup.kind === 'not-found') {
+            throw new ApplicationNotFoundError(jobId);
+        }
+        if (lookup.kind === 'none') {
+            return { match: null };
+        }
+
+        const parsed = JobMatchSchema.safeParse({
+            score: lookup.match.score,
+            requirements: lookup.match.coverage,
+            model: lookup.match.model,
+            promptVersion: lookup.match.promptVersion,
+        });
+        if (!parsed.success) {
+            this.logger.warn({ userId, jobId }, 'Stored match could not be read');
+            throw new StoredMatchInvalidError();
+        }
+        return { match: parsed.data };
     }
 
     async changeStatus(userId: string, applicationId: string, statusId: string): Promise<Application> {

@@ -2,11 +2,12 @@ import type { CreateManualJob } from '@matchbox/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { applicationKeys, changeApplicationStatus } from 'src/features/pipeline';
 
-import { createManualJob, getJobPage, updateApplication } from './job.api';
+import { createManualJob, getJobMatch, getJobPage, updateApplication } from './job.api';
 
 export const jobKeys = {
     all: ['jobs'] as const,
     detail: (jobId: string) => [...jobKeys.all, 'detail', jobId] as const,
+    match: (jobId: string) => [...jobKeys.all, 'match', jobId] as const,
 };
 
 export function useJobPage(jobId: string) {
@@ -14,6 +15,15 @@ export function useJobPage(jobId: string) {
         queryKey: jobKeys.detail(jobId),
         queryFn: () => getJobPage(jobId),
         enabled: jobId.length > 0,
+    });
+}
+
+export function useJobMatch(jobId: string) {
+    return useQuery({
+        queryKey: jobKeys.match(jobId),
+        queryFn: () => getJobMatch(jobId),
+        enabled: jobId.length > 0,
+        retry: false,
     });
 }
 

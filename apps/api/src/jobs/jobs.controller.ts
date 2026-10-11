@@ -3,12 +3,18 @@ import { ZodSerializerDto } from 'nestjs-zod';
 
 import type { AuthUser } from '../auth/types/auth.types';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { CreatedApplicationResponseDto, CreateManualJobRequestDto, JobPageResponseDto } from './dto/jobs.dto';
+import { CreatedApplicationResponseDto, CreateManualJobRequestDto, JobMatchResponseDto, JobPageResponseDto } from './dto/jobs.dto';
 import { JobsService } from './jobs.service';
 
 @Controller({ path: 'jobs', version: '1' })
 export class JobsController {
     constructor(private readonly jobsService: JobsService) {}
+
+    @Get(':jobId/match')
+    @ZodSerializerDto(JobMatchResponseDto)
+    getMatch(@CurrentUser() user: AuthUser, @Param('jobId', ParseUUIDPipe) jobId: string): Promise<JobMatchResponseDto> {
+        return this.jobsService.getMatch(user.id, jobId);
+    }
 
     @Get(':jobId')
     @ZodSerializerDto(JobPageResponseDto)

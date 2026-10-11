@@ -50,6 +50,7 @@ export type ApplicationCvVersionRecord = {
 export type JobPageRecord = {
     application: ApplicationRecord;
     description: string | null;
+    requirements: unknown;
     events: ApplicationEventRecord[];
     cvVersions: ApplicationCvVersionRecord[];
 };
@@ -58,6 +59,18 @@ export type ApplicationNoteEvent = {
     text: string;
     occurredAt: Date;
 };
+
+export type StoredJobMatch = {
+    score: number;
+    coverage: unknown;
+    model: string;
+    promptVersion: string;
+};
+
+export type MatchLookup =
+    | { kind: 'not-found' }
+    | { kind: 'none' }
+    | { kind: 'found'; match: StoredJobMatch };
 
 export type ManualJobDraft = {
     companyName: string;
