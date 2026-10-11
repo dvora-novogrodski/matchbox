@@ -1,10 +1,10 @@
-import type { Application, ApplicationList, StatusCategory } from '@matchbox/shared';
+import type { Application, ApplicationList, JobPage, StatusCategory, UpdateApplication } from '@matchbox/shared';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { StatusNotFoundError } from '../statuses/statuses.errors';
 import { StatusesRepository } from '../statuses/statuses.repository';
 import { ApplicationNotFoundError } from './applications.errors';
-import { toApplication, toApplicationList } from './applications.mapper';
+import { toApplication, toApplicationList, toJobPage } from './applications.mapper';
 import { ApplicationsRepository } from './applications.repository';
 
 const CATEGORIES_THAT_RECORD_APPLIED = new Set<StatusCategory>(['active', 'interviewing', 'offer']);
@@ -21,6 +21,14 @@ export class ApplicationsService {
     async list(userId: string): Promise<ApplicationList> {
         const applications = await this.applicationsRepository.list(userId);
         return toApplicationList(applications);
+    }
+
+    async getByJob(userId: string, jobId: string): Promise<JobPage> {
+        const page = await this.applicationsRepository.findPageByJobId(userId, jobId);
+        if (!page) {
+            throw new ApplicationNotFoundError(jobId);
+        }
+        return toJobPage(page);
     }
 
     async changeStatus(userId: string, applicationId: string, statusId: string): Promise<Application> {
@@ -53,4 +61,41 @@ export class ApplicationsService {
         this.logger.log({ userId, applicationId, statusId: status.id }, 'Application status changed');
         return toApplication(updated);
     }
+
+    async updateDetails(userId: string, applicationId: string, input: UpdateApplication): Promise<Application> {
+        const current = await this.applicationsRepository.findById(userId, applicationId);
+        if (!current) {
+            throw new ApplicationNotFoundError(applicationId);
+        }
+
+        const recruiterName = emptyToNull(input.recruiterName);
+        const recruiterContact = emptyToNull(input.recruiterContact);
+        const notes = emptyToNull(input.notes);
+        const notesChanged = notes !== current.notes;
+        const detailsChanged =
+            recruiterName !== current.recruiterName || recruiterContact !== current.recruiterContact || notesChanged;
+        if (!detailsChanged) {
+            return toApplication(current);
+        }
+
+        const now = new Date();
+        const updated = await this.applicationsRepository.updateDetails(userId, applicationId, {
+            recruiterName,
+            recruiterContact,
+            notes,
+            lastActivityAt: now,
+            note: notesChanged && notes !== null ? { text: notes, occurredAt: now } : null,
+        });
+        if (!updated) {
+            throw new ApplicationNotFoundError(applicationId);
+        }
+
+        this.logger.log({ userId, applicationId }, 'Application details updated');
+        return toApplication(updated);
+    }
+}
+
+function emptyToNull(value: string): string | null {
+    const trimmed = value.trim();
+    return trimmed.length === 0 ? null : trimmed;
 }

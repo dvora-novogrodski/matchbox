@@ -1,4 +1,4 @@
-import type { WorkMode } from '@matchbox/shared';
+import type { EventType, WorkMode } from '@matchbox/shared';
 
 import type { StatusRecord } from '../../statuses/types/statuses.types';
 
@@ -30,4 +30,38 @@ export type ApplicationStatusChange = {
     appliedAt: Date | null;
     lastActivityAt: Date;
     occurredAt: Date;
+};
+
+export type ApplicationEventRecord = {
+    id: string;
+    type: EventType;
+    occurredAt: Date;
+    payload: unknown;
+};
+
+export type ApplicationCvVersionRecord = {
+    id: string;
+    isBase: boolean;
+    commitSha: string | null;
+    createdAt: Date;
+};
+
+export type JobPageRecord = {
+    application: ApplicationRecord;
+    description: string | null;
+    events: ApplicationEventRecord[];
+    cvVersions: ApplicationCvVersionRecord[];
+};
+
+export type ApplicationNoteEvent = {
+    text: string;
+    occurredAt: Date;
+};
+
+export type ApplicationDetailsUpdate = {
+    recruiterName: string | null;
+    recruiterContact: string | null;
+    notes: string | null;
+    lastActivityAt: Date;
+    note: ApplicationNoteEvent | null;
 };

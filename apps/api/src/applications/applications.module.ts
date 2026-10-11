@@ -9,9 +9,7 @@ import { PrismaApplicationsRepository } from './prisma-applications.repository';
 @Module({
     imports: [StatusesModule],
     controllers: [ApplicationsController],
-    providers: [
-        ApplicationsService,
-        { provide: ApplicationsRepository, useClass: PrismaApplicationsRepository },
-    ],
+    providers: [ApplicationsService, { provide: ApplicationsRepository, useClass: PrismaApplicationsRepository }],
+    exports: [ApplicationsService],
 })
 export class ApplicationsModule {}

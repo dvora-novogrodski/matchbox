@@ -4,7 +4,7 @@ import type { StatusRecord } from '../statuses/types/statuses.types';
 import { ApplicationNotFoundError } from './applications.errors';
 import type { ApplicationsRepository } from './applications.repository';
 import { ApplicationsService } from './applications.service';
-import type { ApplicationRecord } from './types/applications.types';
+import type { ApplicationRecord, JobPageRecord } from './types/applications.types';
 
 const USER_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd123';
 const APPLICATION_ID = '0199bcdf-20fc-744f-bc8b-6ef7c25cd124';
@@ -51,7 +51,9 @@ describe('ApplicationsService', () => {
     const applicationsRepository = {
         list: jest.fn(),
         findById: jest.fn(),
+        findPageByJobId: jest.fn(),
         changeStatus: jest.fn(),
+        updateDetails: jest.fn(),
     } as jest.Mocked<ApplicationsRepository>;
     const statusesRepository = {
         listVisible: jest.fn(),
@@ -90,6 +92,85 @@ describe('ApplicationsService', () => {
             ],
         });
         expect(applicationsRepository.list.mock.calls).toEqual([[USER_ID]]);
+    });
+
+    it('should return the job page for the current users application', async () => {
+        const application = buildApplication();
+        const occurredAt = new Date('2026-10-02T09:00:00.000Z');
+        const page: JobPageRecord = {
+            application,
+            description: 'Build things',
+            events: [
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd131',
+                    type: 'status_changed',
+                    occurredAt,
+                    payload: { fromStatusId: SAVED_STATUS_ID, toStatusId: APPLIED_STATUS_ID },
+                },
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd132',
+                    type: 'note',
+                    occurredAt,
+                    payload: { unexpected: true },
+                },
+            ],
+            cvVersions: [
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd133',
+                    isBase: false,
+                    commitSha: null,
+                    createdAt: occurredAt,
+                },
+            ],
+        };
+        applicationsRepository.findPageByJobId.mockResolvedValue(page);
+
+        await expect(service.getByJob(USER_ID, application.job.id)).resolves.toEqual({
+            application: {
+                id: APPLICATION_ID,
+                job: application.job,
+                status: application.status,
+                recruiterName: null,
+                recruiterContact: null,
+                notes: null,
+                appliedAt: null,
+                lastActivityAt: '2026-10-01T09:00:00.000Z',
+                createdAt: '2026-10-01T09:00:00.000Z',
+                updatedAt: '2026-10-01T09:00:00.000Z',
+            },
+            description: 'Build things',
+            events: [
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd131',
+                    type: 'status_changed',
+                    occurredAt: '2026-10-02T09:00:00.000Z',
+                    fromStatusId: SAVED_STATUS_ID,
+                    toStatusId: APPLIED_STATUS_ID,
+                },
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd132',
+                    type: 'note',
+                    occurredAt: '2026-10-02T09:00:00.000Z',
+                    text: '',
+                },
+            ],
+            cvVersions: [
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd133',
+                    isBase: false,
+                    commitSha: null,
+                    createdAt: '2026-10-02T09:00:00.000Z',
+                },
+            ],
+        });
+    });
+
+    it('should reject a job page when the current user has no application for that job', async () => {
+        applicationsRepository.findPageByJobId.mockResolvedValue(null);
+
+        await expect(service.getByJob(USER_ID, '0199bcdf-20fc-744f-bc8b-6ef7c25cd127')).rejects.toBeInstanceOf(
+            ApplicationNotFoundError,
+        );
     });
 
     it('should reject a status change when the application is not owned by the current user', async () => {
@@ -249,5 +330,112 @@ describe('ApplicationsService', () => {
         await expect(service.changeStatus(USER_ID, APPLICATION_ID, APPLIED_STATUS_ID)).rejects.toBeInstanceOf(
             ApplicationNotFoundError,
         );
+    });
+
+    it('should record a note event when notes change', async () => {
+        applicationsRepository.findById.mockResolvedValue(buildApplication());
+        applicationsRepository.updateDetails.mockImplementation((_userId, _applicationId, update) =>
+            Promise.resolve(buildApplication({ notes: update.notes, lastActivityAt: update.lastActivityAt })),
+        );
+
+        await service.updateDetails(USER_ID, APPLICATION_ID, {
+            recruiterName: 'Ada',
+            recruiterContact: 'ada@example.com',
+            notes: '  Called Tuesday  ',
+        });
+
+        expect(applicationsRepository.updateDetails.mock.calls).toEqual([
+            [
+                USER_ID,
+                APPLICATION_ID,
+                {
+                    recruiterName: 'Ada',
+                    recruiterContact: 'ada@example.com',
+                    notes: 'Called Tuesday',
+                    lastActivityAt: NOW,
+                    note: { text: 'Called Tuesday', occurredAt: NOW },
+                },
+            ],
+        ]);
+    });
+
+    it('should update recruiter details without a note event', async () => {
+        applicationsRepository.findById.mockResolvedValue(buildApplication({ notes: 'Keep' }));
+        applicationsRepository.updateDetails.mockImplementation((_userId, _applicationId, update) =>
+            Promise.resolve(buildApplication({ recruiterName: update.recruiterName })),
+        );
+
+        await service.updateDetails(USER_ID, APPLICATION_ID, {
+            recruiterName: 'Ada',
+            recruiterContact: '',
+            notes: 'Keep',
+        });
+
+        expect(applicationsRepository.updateDetails.mock.calls).toEqual([
+            [
+                USER_ID,
+                APPLICATION_ID,
+                {
+                    recruiterName: 'Ada',
+                    recruiterContact: null,
+                    notes: 'Keep',
+                    lastActivityAt: NOW,
+                    note: null,
+                },
+            ],
+        ]);
+    });
+
+    it('should clear notes without appending a note event', async () => {
+        applicationsRepository.findById.mockResolvedValue(buildApplication({ notes: 'Old' }));
+        applicationsRepository.updateDetails.mockImplementation((_userId, _applicationId, update) =>
+            Promise.resolve(buildApplication({ notes: update.notes })),
+        );
+
+        await service.updateDetails(USER_ID, APPLICATION_ID, {
+            recruiterName: '',
+            recruiterContact: '',
+            notes: '   ',
+        });
+
+        expect(applicationsRepository.updateDetails.mock.calls).toEqual([
+            [
+                USER_ID,
+                APPLICATION_ID,
+                {
+                    recruiterName: null,
+                    recruiterContact: null,
+                    notes: null,
+                    lastActivityAt: NOW,
+                    note: null,
+                },
+            ],
+        ]);
+    });
+
+    it('should leave details unchanged when the trimmed values are the same', async () => {
+        applicationsRepository.findById.mockResolvedValue(buildApplication({ notes: 'Keep', recruiterName: 'Ada' }));
+
+        const result = await service.updateDetails(USER_ID, APPLICATION_ID, {
+            recruiterName: ' Ada ',
+            recruiterContact: '',
+            notes: 'Keep',
+        });
+
+        expect(result.notes).toBe('Keep');
+        expect(applicationsRepository.updateDetails.mock.calls).toEqual([]);
+    });
+
+    it('should reject a details update when the application is not owned by the current user', async () => {
+        applicationsRepository.findById.mockResolvedValue(null);
+
+        await expect(
+            service.updateDetails(USER_ID, APPLICATION_ID, {
+                recruiterName: '',
+                recruiterContact: '',
+                notes: 'Hello',
+            }),
+        ).rejects.toBeInstanceOf(ApplicationNotFoundError);
+        expect(applicationsRepository.updateDetails.mock.calls).toEqual([]);
     });
 });

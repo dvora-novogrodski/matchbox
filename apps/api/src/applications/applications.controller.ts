@@ -8,6 +8,7 @@ import {
     ApplicationListResponseDto,
     ApplicationResponseDto,
     ChangeApplicationStatusRequestDto,
+    UpdateApplicationRequestDto,
 } from './dto/applications.dto';
 
 @Controller({ path: 'applications', version: '1' })
@@ -28,5 +29,15 @@ export class ApplicationsController {
         @Body() body: ChangeApplicationStatusRequestDto,
     ): Promise<ApplicationResponseDto> {
         return this.applicationsService.changeStatus(user.id, applicationId, body.statusId);
+    }
+
+    @Patch(':applicationId')
+    @ZodSerializerDto(ApplicationResponseDto)
+    update(
+        @CurrentUser() user: AuthUser,
+        @Param('applicationId', ParseUUIDPipe) applicationId: string,
+        @Body() body: UpdateApplicationRequestDto,
+    ): Promise<ApplicationResponseDto> {
+        return this.applicationsService.updateDetails(user.id, applicationId, body);
     }
 }

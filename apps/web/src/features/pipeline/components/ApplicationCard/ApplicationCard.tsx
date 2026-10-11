@@ -1,7 +1,8 @@
 import type { Application, Status } from '@matchbox/shared';
-import { Button, Card, Chip, Menu, MenuItem, Stack, Typography, useTheme } from '@matchbox/ui';
+import { Button, Card, Chip, Link, Menu, MenuItem, Stack, Typography, useTheme } from '@matchbox/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router-dom';
 import { formatRelativeTime } from 'src/utils/format.utils';
 
 import { statusLabel } from '../../status-label';
@@ -35,7 +36,15 @@ export function ApplicationCard({ application, destinations, isPending, onChange
                         sx={{ bgcolor: tone.bg, color: tone.fg }}
                     />
                 </Stack>
-                <Typography>{application.job.title}</Typography>
+                <Link
+                    component={RouterLink}
+                    data-test={`pipeline-application-open-${application.id}`}
+                    to={`/jobs/${application.job.id}/overview`}
+                    underline="hover"
+                    variant="body1"
+                >
+                    {application.job.title}
+                </Link>
                 {application.job.location ? (
                     <Typography color="text.secondary" variant="body2">
                         {application.job.location}

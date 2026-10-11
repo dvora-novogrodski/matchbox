@@ -1,0 +1,65 @@
+{
+  "actions": {
+    "backToPipeline": "Back to pipeline",
+    "tailorCv": "Tailor CV",
+    "prepareToApply": "Prepare to apply",
+    "markApplied": "Mark as applied",
+    "save": "Save",
+    "openPosting": "Open posting",
+    "openBaseCv": "Open base CV"
+  },
+  "tabs": {
+    "label": "Job sections",
+    "overview": "Overview",
+    "cv": "CV",
+    "kit": "Application kit",
+    "timeline": "Timeline"
+  },
+  "overview": {
+    "description": "Posting",
+    "descriptionEmpty": "No description yet.",
+    "status": "Status",
+    "statusFor": "Status for {{title}}",
+    "recruiterName": "Recruiter",
+    "recruiterContact": "Recruiter contact",
+    "notes": "Notes"
+  },
+  "workMode": {
+    "onsite": "On-site",
+    "hybrid": "Hybrid",
+    "remote": "Remote"
+  },
+  "cv": {
+    "empty": "No CV for this job yet. Tailoring needs the AI service, so you can edit your base CV yourself.",
+    "draft": "Draft",
+    "committed": "Saved to Git {{sha}}",
+    "version": "{{date}} · {{label}}"
+  },
+  "kit": {
+    "intro": "These templates are empty until an application kit can be generated.",
+    "coverLetterTitle": "Cover letter",
+    "coverLetterTemplate": "Hello, I am applying for {{title}} at {{company}}.",
+    "answersTitle": "Answers",
+    "answersTemplate": "Why this role:"
+  },
+  "timeline": {
+    "empty": "No activity yet.",
+    "statusChanged": "Status changed from {{from}} to {{to}}",
+    "statusChangedUnknown": "Status changed",
+    "unknownStatus": "Unknown status",
+    "note": "Note",
+    "created": "Application created",
+    "email": "Email",
+    "followUp": "Follow-up"
+  },
+  "validation": {
+    "tooLong": "This is too long."
+  },
+  "errors": {
+    "loadFailed": "This job could not be loaded. Please try again.",
+    "notFound": "This job is not in your pipeline.",
+    "saveFailed": "The details could not be saved. Please try again.",
+    "statusFailed": "The status could not be changed. Please try again.",
+    "appliedStatusMissing": "The Applied status is not available."
+  }
+}

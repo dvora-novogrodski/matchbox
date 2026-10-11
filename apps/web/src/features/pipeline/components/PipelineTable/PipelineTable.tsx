@@ -1,16 +1,7 @@
 import type { Application, Status } from '@matchbox/shared';
-import {
-    MenuItem,
-    Select,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography,
-} from '@matchbox/ui';
+import { Link, MenuItem, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@matchbox/ui';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router-dom';
 import { formatDate, formatRelativeTime } from 'src/utils/format.utils';
 
 import { statusLabel } from '../../status-label';
@@ -42,7 +33,16 @@ export function PipelineTable({ statuses, applications, pendingApplicationId, on
                     {applications.map((application) => (
                         <TableRow data-test={`pipeline-application-row-${application.id}`} key={application.id}>
                             <TableCell>{application.job.companyName}</TableCell>
-                            <TableCell>{application.job.title}</TableCell>
+                            <TableCell>
+                                <Link
+                                    component={RouterLink}
+                                    data-test={`pipeline-application-open-${application.id}`}
+                                    to={`/jobs/${application.job.id}/overview`}
+                                    underline="hover"
+                                >
+                                    {application.job.title}
+                                </Link>
+                            </TableCell>
                             <TableCell>
                                 <Select
                                     aria-label={t('table.statusFor', { title: application.job.title })}

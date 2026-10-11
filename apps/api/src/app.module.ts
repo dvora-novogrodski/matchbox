@@ -10,6 +10,7 @@ import { validate } from './common/config/env.validation';
 import { HealthModule } from './common/health/health.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { CvModule } from './cv/cv.module';
+import { JobsModule } from './jobs/jobs.module';
 import { ProfileModule } from './profile/profile.module';
 import { StatusesModule } from './statuses/statuses.module';
 
@@ -22,6 +23,7 @@ import { StatusesModule } from './statuses/statuses.module';
     AuthModule,
     ProfileModule,
     CvModule,
+    JobsModule,
     StatusesModule,
     ApplicationsModule,
   ],

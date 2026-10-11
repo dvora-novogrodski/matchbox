@@ -1,11 +1,16 @@
-import { WORK_MODES, type WorkMode } from '@matchbox/shared';
+import { EVENT_TYPES, type EventType, WORK_MODES, type WorkMode } from '@matchbox/shared';
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../common/prisma/prisma.service';
 import type { Prisma } from '../generated/prisma/client';
 import { toSystemStatusKey } from '../statuses/status-key';
 import { ApplicationsRepository } from './applications.repository';
-import type { ApplicationRecord, ApplicationStatusChange } from './types/applications.types';
+import type {
+    ApplicationDetailsUpdate,
+    ApplicationRecord,
+    ApplicationStatusChange,
+    JobPageRecord,
+} from './types/applications.types';
 
 const applicationInclude = {
     job: true,
@@ -13,6 +18,18 @@ const applicationInclude = {
 } satisfies Prisma.ApplicationInclude;
 
 type ApplicationRow = Prisma.ApplicationGetPayload<{ include: typeof applicationInclude }>;
+
+const jobPageInclude = {
+    job: true,
+    status: true,
+    events: { orderBy: { occurredAt: 'desc' as const } },
+    cvVersions: {
+        orderBy: { createdAt: 'desc' as const },
+        select: { id: true, isBase: true, commitSha: true, createdAt: true },
+    },
+} satisfies Prisma.ApplicationInclude;
+
+type JobPageRow = Prisma.ApplicationGetPayload<{ include: typeof jobPageInclude }>;
 
 @Injectable()
 export class PrismaApplicationsRepository extends ApplicationsRepository {
@@ -27,6 +44,32 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
             orderBy: [{ status: { position: 'asc' } }, { lastActivityAt: 'desc' }],
         });
         return applications.map((application) => this.toApplication(application));
+    }
+
+    async findPageByJobId(userId: string, jobId: string): Promise<JobPageRecord | null> {
+        const application = await this.prisma.application.findFirst({
+            where: { userId, jobId },
+            include: jobPageInclude,
+        });
+        if (!application) {
+            return null;
+        }
+        return {
+            application: this.toApplication(application),
+            description: application.job.description,
+            events: application.events.map((event) => ({
+                id: event.id,
+                type: toEventType(event.type),
+                occurredAt: event.occurredAt,
+                payload: event.payload,
+            })),
+            cvVersions: application.cvVersions.map((version) => ({
+                id: version.id,
+                isBase: version.isBase,
+                commitSha: version.commitSha,
+                createdAt: version.createdAt,
+            })),
+        };
     }
 
     async findById(userId: string, applicationId: string): Promise<ApplicationRecord | null> {
@@ -73,7 +116,46 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
         });
     }
 
-    private toApplication(application: ApplicationRow): ApplicationRecord {
+    async updateDetails(
+        userId: string,
+        applicationId: string,
+        update: ApplicationDetailsUpdate,
+    ): Promise<ApplicationRecord | null> {
+        return this.prisma.$transaction(async (tx) => {
+            const updated = await tx.application.updateMany({
+                where: { id: applicationId, userId },
+                data: {
+                    recruiterName: update.recruiterName,
+                    recruiterContact: update.recruiterContact,
+                    notes: update.notes,
+                    lastActivityAt: update.lastActivityAt,
+                },
+            });
+            if (updated.count !== 1) {
+                return null;
+            }
+
+            if (update.note) {
+                await tx.event.create({
+                    data: {
+                        userId,
+                        applicationId,
+                        type: 'note',
+                        payload: { text: update.note.text },
+                        occurredAt: update.note.occurredAt,
+                    },
+                });
+            }
+
+            const application = await tx.application.findFirst({
+                where: { id: applicationId, userId },
+                include: applicationInclude,
+            });
+            return application ? this.toApplication(application) : null;
+        });
+    }
+
+    private toApplication(application: ApplicationRow | JobPageRow): ApplicationRecord {
         return {
             id: application.id,
             job: {
@@ -101,6 +183,10 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
             updatedAt: application.updatedAt,
         };
     }
+}
+
+function toEventType(type: string): EventType {
+    return (EVENT_TYPES as readonly string[]).includes(type) ? (type as EventType) : 'created';
 }
 
 function toWorkMode(mode: string | null): WorkMode | null {

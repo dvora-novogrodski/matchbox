@@ -26,6 +26,19 @@ export const router = createBrowserRouter([
     },
   },
   {
+    path: '/jobs/:jobId/:tab?',
+    lazy: async () => {
+      const { JobPage } = await import('src/features/job');
+      return {
+        Component: () => (
+          <RequireAuth>
+            <JobPage />
+          </RequireAuth>
+        ),
+      };
+    },
+  },
+  {
     path: '/cv',
     lazy: async () => {
       const { CvPage } = await import('src/features/cv');
