@@ -12,6 +12,8 @@ const shared = {
     // TypeScript source so ts-jest compiles it with the rest of the tests.
     '^@matchbox/shared$': '<rootDir>/../../../packages/shared/src/index.ts',
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    // puppeteer-core is ESM-only. Tests override PdfRenderer and never launch Chrome.
+    '^puppeteer-core$': path.join(__dirname, 'test/mocks/puppeteer-core.ts'),
   },
   testEnvironment: 'node',
 };

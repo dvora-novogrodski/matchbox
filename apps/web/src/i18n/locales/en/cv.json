@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "CV",
+    "description": "Your base CV is a selection from your career profile. Save it, preview the layout, download a PDF, and commit a version to a private GitHub repository."
+  },
+  "actions": {
+    "openProfile": "Edit career profile",
+    "save": "Save base CV",
+    "downloadPdf": "Download PDF",
+    "saveVersion": "Save version",
+    "moveUp": "Move {{title}} up",
+    "moveDown": "Move {{title}} down",
+    "addLink": "Add link",
+    "removeLink": "Remove {{label}}",
+    "connectGithub": "Connect GitHub",
+    "disconnectGithub": "Disconnect"
+  },
+  "header": {
+    "title": "Header",
+    "fullName": "Full name",
+    "headline": "Headline",
+    "email": "Email",
+    "phone": "Phone",
+    "location": "Location",
+    "linkLabel": "Link label",
+    "linkUrl": "Link URL"
+  },
+  "summary": {
+    "title": "Summary",
+    "label": "Summary"
+  },
+  "sections": {
+    "experience": "Experience",
+    "projects": "Projects",
+    "skills": "Skills",
+    "education": "Education",
+    "empty": "Nothing here yet. Add items on your career profile, then include them."
+  },
+  "preview": {
+    "title": "CV preview",
+    "saved": "This preview matches the last saved base CV.",
+    "dirty": "Save the base CV to update this preview, the PDF, and the next version."
+  },
+  "version": {
+    "title": "Versions",
+    "none": "No version saved yet.",
+    "local": "The latest version is saved in Matchbox only.",
+    "committed": "The latest version is committed as {{sha}}."
+  },
+  "github": {
+    "title": "GitHub",
+    "description": "Connect a private repository to commit cvs/base.json and cvs/base.html with each saved version. The token is stored encrypted and is never shown again.",
+    "repo": "Repository",
+    "token": "Personal access token",
+    "connected": "Connected to {{repo}}.",
+    "notConnected": "GitHub is not connected. Versions stay in Matchbox until you connect a repository."
+  },
+  "errors": {
+    "loadFailed": "The CV could not be loaded. Please try again.",
+    "saveFailed": "The base CV could not be saved. Please try again.",
+    "invalid": "Check the CV fields and try again.",
+    "invalidLink": "Enter a label and an http or https URL.",
+    "pdfFailed": "The PDF could not be downloaded. Please try again.",
+    "pdfUnavailable": "PDF rendering is unavailable right now. Please try again.",
+    "versionFailed": "The version could not be saved. Please try again.",
+    "githubFailed": "GitHub could not be updated. Check the repository and token, then try again."
+  }
+}

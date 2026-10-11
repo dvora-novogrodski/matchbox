@@ -5,6 +5,7 @@
   },
   "actions": {
     "openCareerProfile": "Open career profile",
+    "openCv": "Open CV",
     "signOut": "Sign out"
   },
   "errors": {

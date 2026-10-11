@@ -33,6 +33,15 @@ export function App() {
           {t('actions.openCareerProfile')}
         </Button>
         <Button
+          data-test="app-cv-button"
+          onClick={() => {
+            void navigate('/cv');
+          }}
+          variant="outlined"
+        >
+          {t('actions.openCv')}
+        </Button>
+        <Button
           data-test="app-sign-out-button"
           disabled={signOut.isPending}
           onClick={() => signOut.mutate()}

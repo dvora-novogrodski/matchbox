@@ -11,5 +11,6 @@ import { ProfileService } from './profile.service';
         ProfileService,
         { provide: ProfileRepository, useClass: PrismaProfileRepository },
     ],
+    exports: [ProfileService],
 })
 export class ProfileModule {}

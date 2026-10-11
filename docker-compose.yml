@@ -48,6 +48,8 @@ services:
       DATABASE_URL: *database-url
       FIREBASE_AUTH_EMULATOR_HOST: firebase-auth:9099
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${VITE_FIREBASE_PROJECT_ID:-demo-matchbox}}
+      # Wins over an empty CHROME_PATH in .env so the image Chromium is used.
+      CHROME_PATH: /usr/bin/chromium
     depends_on:
       firebase-auth: { condition: service_started }
       migrate: { condition: service_completed_successfully }

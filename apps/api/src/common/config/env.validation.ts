@@ -12,6 +12,13 @@ export const EnvironmentSchema = z.object({
     .transform((value) => value.split(',').map((origin) => origin.trim())),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
   FIREBASE_PROJECT_ID: defaultedString('demo-matchbox'),
+  /** 32-byte key, base64. Required only when a GitHub token is stored. */
+  TOKEN_ENCRYPTION_KEY: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().trim().min(1).optional(),
+  ),
+  /** Chromium or Chrome binary used to render CV PDFs. */
+  CHROME_PATH: z.preprocess((value) => (value === '' ? undefined : value), z.string().trim().min(1).optional()),
 });
 
 export type EnvironmentVariables = z.output<typeof EnvironmentSchema>;

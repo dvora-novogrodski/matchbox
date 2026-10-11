@@ -29,6 +29,13 @@ describe('validate', () => {
     expect(env.FIREBASE_PROJECT_ID).toBe('demo-matchbox');
   });
 
+  it('should treat an empty token key and chrome path as unset', () => {
+    const env = validate({ DATABASE_URL, TOKEN_ENCRYPTION_KEY: '', CHROME_PATH: '' });
+
+    expect(env.TOKEN_ENCRYPTION_KEY).toBeUndefined();
+    expect(env.CHROME_PATH).toBeUndefined();
+  });
+
   it('should throw when DATABASE_URL is missing', () => {
     expect(() => validate({})).toThrow(/DATABASE_URL/);
   });
