@@ -9,6 +9,10 @@ describe('jobPrimaryAction', () => {
         );
     });
 
+    it('should leave tailoring to the CV tab once that tab is open', () => {
+        expect(jobPrimaryAction({ appliedAt: null, category: 'open', cvVersionCount: 0, tab: 'cv' })).toBeNull();
+    });
+
     it('should ask to prepare an application once a CV exists', () => {
         expect(jobPrimaryAction({ appliedAt: null, category: 'open', cvVersionCount: 1, tab: 'overview' })).toBe(
             'prepareToApply',

@@ -61,7 +61,7 @@ describe('CvService', () => {
         findLatestBaseVersion: jest.fn(),
     } as jest.Mocked<CvRepository>;
     const profileService = { getProfile: jest.fn() } as unknown as jest.Mocked<Pick<ProfileService, 'getProfile'>>;
-    const githubClient = { commitFiles: jest.fn() } as jest.Mocked<GitHubClient>;
+    const githubClient = { commitFiles: jest.fn(), findCommitByPath: jest.fn() } as jest.Mocked<GitHubClient>;
     const pdfRenderer = { renderHtml: jest.fn() } as jest.Mocked<PdfRenderer>;
     const service = new CvService(
         repository,

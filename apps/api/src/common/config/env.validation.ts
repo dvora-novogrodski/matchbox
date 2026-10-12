@@ -11,6 +11,9 @@ export const EnvironmentSchema = z.object({
     .default('http://localhost:5173')
     .transform((value) => value.split(',').map((origin) => origin.trim())),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+  /** Base URL of the AI service. When unset, AI features return unavailable. */
+  AI_SERVICE_URL: z.preprocess((value) => (value === '' ? undefined : value), z.url().optional()),
+  AI_TIMEOUT_MS: z.coerce.number().int().min(1).max(120_000).default(15_000),
   FIREBASE_PROJECT_ID: defaultedString('demo-matchbox'),
   /** 32-byte key, base64. Required only when a GitHub token is stored. */
   TOKEN_ENCRYPTION_KEY: z.preprocess(

@@ -28,7 +28,7 @@ const jobPageInclude = {
     events: { orderBy: { occurredAt: 'desc' as const } },
     cvVersions: {
         orderBy: { createdAt: 'desc' as const },
-        select: { id: true, isBase: true, commitSha: true, createdAt: true },
+        select: { id: true, isBase: true, commitSha: true, status: true, createdAt: true },
     },
 } satisfies Prisma.ApplicationInclude;
 
@@ -67,12 +67,14 @@ export class PrismaApplicationsRepository extends ApplicationsRepository {
                 occurredAt: event.occurredAt,
                 payload: event.payload,
             })),
-            cvVersions: application.cvVersions.map((version) => ({
-                id: version.id,
-                isBase: version.isBase,
-                commitSha: version.commitSha,
-                createdAt: version.createdAt,
-            })),
+            cvVersions: application.cvVersions
+                .filter((version) => version.status === 'saved')
+                .map((version) => ({
+                    id: version.id,
+                    isBase: version.isBase,
+                    commitSha: version.commitSha,
+                    createdAt: version.createdAt,
+                })),
         };
     }
 

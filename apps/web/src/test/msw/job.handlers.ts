@@ -38,6 +38,7 @@ export function createJobHandlers(page: JobPage = sampleJobPage(), statuses: Sta
     return [
         http.get(`${baseUrl}/statuses`, () => HttpResponse.json(StatusListSchema.parse({ items: state.statuses }))),
         http.get(`${baseUrl}/jobs/:jobId/match`, () => HttpResponse.json({ match: null })),
+        http.get(`${baseUrl}/applications/:applicationId/cv-changes`, () => HttpResponse.json({ changes: [] })),
         http.get(`${baseUrl}/jobs/:jobId`, ({ params }) => {
             if (params.jobId !== state.page.application.job.id) {
                 return HttpResponse.json(

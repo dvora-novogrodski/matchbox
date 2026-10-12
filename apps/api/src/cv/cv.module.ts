@@ -29,5 +29,6 @@ import { PrismaCvRepository } from './prisma-cv.repository';
             },
         },
     ],
+    exports: [CvService],
 })
 export class CvModule {}

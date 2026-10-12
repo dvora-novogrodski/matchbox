@@ -73,6 +73,7 @@ export class PrismaCvRepository extends CvRepository {
                     templateId: version.templateId,
                     gitPath: version.gitPath,
                     commitSha: version.commitSha,
+                    status: 'saved',
                 },
             });
             return toStoredVersion(row);

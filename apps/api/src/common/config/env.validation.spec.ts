@@ -9,6 +9,8 @@ describe('validate', () => {
     expect(env.API_PORT).toBe(3000);
     expect(env.WEB_ORIGIN).toEqual(['http://localhost:5173']);
     expect(env.FIREBASE_PROJECT_ID).toBe('demo-matchbox');
+    expect(env.AI_TIMEOUT_MS).toBe(15_000);
+    expect(env.AI_SERVICE_URL).toBeUndefined();
   });
 
   it('should split WEB_ORIGIN into trimmed origins', () => {
@@ -30,10 +32,11 @@ describe('validate', () => {
   });
 
   it('should treat an empty token key and chrome path as unset', () => {
-    const env = validate({ DATABASE_URL, TOKEN_ENCRYPTION_KEY: '', CHROME_PATH: '' });
+    const env = validate({ DATABASE_URL, TOKEN_ENCRYPTION_KEY: '', CHROME_PATH: '', AI_SERVICE_URL: '' });
 
     expect(env.TOKEN_ENCRYPTION_KEY).toBeUndefined();
     expect(env.CHROME_PATH).toBeUndefined();
+    expect(env.AI_SERVICE_URL).toBeUndefined();
   });
 
   it('should throw when DATABASE_URL is missing', () => {

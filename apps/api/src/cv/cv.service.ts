@@ -11,7 +11,7 @@ import {
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 
 import { decryptToken, encryptToken } from '../integrations/crypto/token-cipher';
-import { GitHubClient } from '../integrations/github/github-client.port';
+import { GitHubClient, type GitHubCommitFile } from '../integrations/github/github-client.port';
 import { ProfileService } from '../profile/profile.service';
 import { catalogFromProfile, composeCvDocument, countRemovedIds, pruneSelection, selectionFromProfile } from './compose-base-cv';
 import { BASE_CV_COMMIT_MESSAGE, BASE_CV_HTML_PATH, BASE_CV_JSON_PATH, CV_TOKEN_KEY } from './cv.constants';
@@ -60,7 +60,10 @@ export class CvService {
     async saveBaseVersion(userId: string): Promise<CvVersion> {
         const editor = await this.getEditor(userId);
         const record = await this.requireUser(userId);
-        const commitSha = await this.commitBaseCv(userId, record, editor);
+        const commitSha = await this.commitFiles(userId, record, BASE_CV_COMMIT_MESSAGE, [
+            { path: BASE_CV_JSON_PATH, content: `${JSON.stringify(editor.document, null, 2)}\n` },
+            { path: BASE_CV_HTML_PATH, content: editor.html },
+        ]);
         const stored = await this.cvRepository.createBaseVersion(userId, {
             document: editor.document,
             selection: editor.selection,
@@ -118,29 +121,52 @@ export class CvService {
         };
     }
 
-    private async commitBaseCv(userId: string, record: UserCvRecord, editor: CvEditor): Promise<string | null> {
+    async commitDocument(userId: string, message: string, files: GitHubCommitFile[]): Promise<string | null> {
+        const record = await this.requireUser(userId);
+        return this.commitFiles(userId, record, message, files);
+    }
+
+    private async commitFiles(
+        userId: string,
+        record: UserCvRecord,
+        message: string,
+        files: GitHubCommitFile[],
+    ): Promise<string | null> {
+        const access = this.githubAccess(userId, record);
+        if (!access) {
+            return null;
+        }
+        return this.githubClient.commitFiles({
+            repo: access.repo,
+            token: access.token,
+            message,
+            files,
+        });
+    }
+
+    /** Null when GitHub is not connected or the path has no commit. */
+    async findCommitForPath(userId: string, path: string): Promise<string | null> {
+        const record = await this.requireUser(userId);
+        const access = this.githubAccess(userId, record);
+        if (!access) {
+            return null;
+        }
+        return this.githubClient.findCommitByPath({ repo: access.repo, token: access.token, path });
+    }
+
+    private githubAccess(userId: string, record: UserCvRecord): { repo: string; token: string } | null {
         if (!record.githubRepo || !record.githubTokenEncrypted) {
             return null;
         }
         if (!this.encryptionKey) {
             throw new TokenEncryptionUnavailableError();
         }
-        let token: string;
         try {
-            token = decryptToken(record.githubTokenEncrypted, this.encryptionKey);
+            return { repo: record.githubRepo, token: decryptToken(record.githubTokenEncrypted, this.encryptionKey) };
         } catch (error) {
             this.logger.warn({ userId, err: error }, 'Stored GitHub token could not be decrypted');
             throw new CvGithubCredentialsError();
         }
-        return this.githubClient.commitFiles({
-            repo: record.githubRepo,
-            token,
-            message: BASE_CV_COMMIT_MESSAGE,
-            files: [
-                { path: BASE_CV_JSON_PATH, content: `${JSON.stringify(editor.document, null, 2)}\n` },
-                { path: BASE_CV_HTML_PATH, content: editor.html },
-            ],
-        });
     }
 
     private withoutStaleIds(profile: Profile, selection: BaseCv, previous: BaseCv | null): BaseCv {

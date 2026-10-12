@@ -13,6 +13,7 @@ import { CvModule } from './cv/cv.module';
 import { JobsModule } from './jobs/jobs.module';
 import { ProfileModule } from './profile/profile.module';
 import { StatusesModule } from './statuses/statuses.module';
+import { TailorModule } from './tailor/tailor.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { StatusesModule } from './statuses/statuses.module';
     JobsModule,
     StatusesModule,
     ApplicationsModule,
+    TailorModule,
   ],
   providers: [
     AppConfig,

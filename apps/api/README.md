@@ -15,6 +15,7 @@ src/
   profile/        Grouped career profile (`GET /profile`, bullets, skills); triggers A1 indexing (F2)
   cv/             CV schema validation, versions, HTML/PDF rendering (F3)
     templates/    Deterministic templates, selected by template id
+  tailor/         CV change proposals, evidence checks, and saved job versions (F8)
   applications/   Pipeline, application lifecycle (F4, F5)
   statuses/       System + custom statuses and categories (F4)
   jobs/           Jobs independent of applications, manual add (F6)

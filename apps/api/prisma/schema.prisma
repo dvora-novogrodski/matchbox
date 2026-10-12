@@ -101,6 +101,15 @@ enum CvChangeState {
   @@map("cv_change_state")
 }
 
+/// Job CV draft lifecycle. Base versions are saved immediately.
+enum CvVersionStatus {
+  open
+  saving
+  saved
+
+  @@map("cv_version_status")
+}
+
 enum EventType {
   created
   status_changed
@@ -331,19 +340,24 @@ model Application {
   @@map("applications")
 }
 
-/// A CV snapshot (F3). Without a commit SHA it is a draft that tailoring changes attach to.
+/// A CV snapshot (F3). A job draft is open until a save claims it and then records it.
 model CvVersion {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId        String   @map("user_id") @db.Uuid
-  applicationId String?  @map("application_id") @db.Uuid
-  parentId      String?  @map("parent_id") @db.Uuid
-  isBase        Boolean  @default(false) @map("is_base")
-  cv            Json
-  templateId    String   @default("default") @map("template_id")
-  gitPath       String?  @map("git_path")
-  commitSha     String?  @map("commit_sha")
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String          @map("user_id") @db.Uuid
+  applicationId   String?         @map("application_id") @db.Uuid
+  parentId        String?         @map("parent_id") @db.Uuid
+  isBase          Boolean         @default(false) @map("is_base")
+  cv              Json
+  templateId      String          @default("default") @map("template_id")
+  /// Set when a save claims the draft, before GitHub is written.
+  gitPath         String?         @map("git_path")
+  commitSha       String?         @map("commit_sha")
+  /// open while changes are being decided, saving during the GitHub write, saved once recorded.
+  status          CvVersionStatus @default(saved)
+  /// When the current claim started. A saving row older than five minutes can be reclaimed.
+  savingStartedAt DateTime?       @map("saving_started_at") @db.Timestamptz(3)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   application Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
@@ -363,8 +377,12 @@ model CvChange {
   section        CvSection
   /// Location inside the section, for example "experience[0].bullets[2]".
   targetPath     String?       @map("target_path")
+  /// replace, insert, or reorder (A4).
+  op             String
   before         String?
   after          String
+  /// Every cited id. The foreign key below is the first career item among them.
+  evidenceIds    Json          @default("[]") @map("evidence_ids")
   evidenceItemId String?       @map("evidence_item_id") @db.Uuid
   state          CvChangeState @default(proposed)
   rationale      String?

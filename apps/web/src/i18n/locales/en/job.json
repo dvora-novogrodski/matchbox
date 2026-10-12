@@ -7,7 +7,11 @@
     "markApplied": "Mark as applied",
     "save": "Save",
     "openPosting": "Open posting",
-    "openBaseCv": "Open base CV"
+    "openBaseCv": "Open base CV",
+    "tailorAgain": "Tailor again",
+    "accept": "Accept",
+    "reject": "Reject",
+    "saveVersion": "Save version"
   },
   "tabs": {
     "label": "Job sections",
@@ -43,9 +47,22 @@
   },
   "cv": {
     "empty": "No CV for this job yet. Tailoring needs the AI service, so you can edit your base CV yourself.",
-    "draft": "Draft",
+    "savedLocally": "Saved in Matchbox",
     "committed": "Saved to Git {{sha}}",
-    "version": "{{date}} · {{label}}"
+    "version": "{{date}} · {{label}}",
+    "unavailable": "CV tailoring is unavailable. Try again, or edit your base CV.",
+    "loadFailed": "CV changes could not be loaded. Please try again.",
+    "tailorFailed": "The CV could not be tailored. Please try again.",
+    "saveFailed": "The CV version could not be saved. Please try again.",
+    "draftClosed": "This draft was already saved or closed.",
+    "savedWithoutGithub": "Saved in Matchbox. GitHub is not connected.",
+    "replaces": "Tailoring again replaces these proposals.",
+    "evidence": "Evidence",
+    "evidenceUnavailable": "Profile item",
+    "blocked": "Blocked",
+    "proposed": "Proposed",
+    "accepted": "Accepted",
+    "rejected": "Rejected"
   },
   "kit": {
     "intro": "These templates are empty until an application kit can be generated.",

@@ -118,6 +118,32 @@ describe('GithubRestClient', () => {
         ).resolves.toBe(COMMIT_SHA);
     });
 
+    it('should return the commit that already contains a path', async () => {
+        const fetchImpl = jest.fn((input: RequestInfo | URL) => {
+            const url = requestUrl(input);
+            expect(url).toContain('/repos/ada/cv/commits?path=cvs%2F2026-10-acme-engineer.json&per_page=1');
+            return Promise.resolve(jsonResponse(200, [{ sha: COMMIT_SHA }]));
+        });
+        const client = new GithubRestClient(fetchImpl);
+
+        const sha = await client.findCommitByPath({
+            repo: 'ada/cv',
+            token: 'secret-token',
+            path: 'cvs/2026-10-acme-engineer.json',
+        });
+
+        expect(sha).toBe(COMMIT_SHA);
+    });
+
+    it('should report no commit when the path is absent', async () => {
+        const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse(200, [])));
+        const client = new GithubRestClient(fetchImpl);
+
+        const sha = await client.findCommitByPath({ repo: 'ada/cv', token: 'secret-token', path: 'cvs/missing.json' });
+
+        expect(sha).toBeNull();
+    });
+
     it('should reject an unauthorized repository', async () => {
         const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse(401, { message: 'Bad credentials' })));
         const client = new GithubRestClient(fetchImpl);

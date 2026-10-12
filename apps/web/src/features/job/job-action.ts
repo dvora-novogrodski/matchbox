@@ -14,7 +14,7 @@ export function jobPrimaryAction(input: {
         return null;
     }
     if (input.cvVersionCount === 0) {
-        return 'tailorCv';
+        return input.tab === 'cv' ? null : 'tailorCv';
     }
     if (input.tab === 'kit') {
         return 'markApplied';

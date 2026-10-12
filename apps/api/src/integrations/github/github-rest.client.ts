@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { GithubRejectedError, GithubUnavailableError } from './github.errors';
-import { GitHubClient, type GitHubCommitInput } from './github-client.port';
+import { GitHubClient, type GitHubCommitInput, type GitHubPathLookup } from './github-client.port';
 
 const GITHUB_API = 'https://api.github.com';
 const REPO_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
@@ -80,6 +80,21 @@ export class GithubRestClient extends GitHubClient {
         }
 
         return sha;
+    }
+
+    async findCommitByPath(input: GitHubPathLookup): Promise<string | null> {
+        const { owner, name } = parseGithubRepo(input.repo);
+        assertSafePath(input.path);
+        const listed = await this.request(
+            input.token,
+            `/repos/${owner}/${name}/commits?path=${encodeURIComponent(input.path)}&per_page=1`,
+            undefined,
+            { allowStatuses: [404, 409] },
+        );
+        if (!listed.response.ok || !Array.isArray(listed.body) || listed.body.length === 0) {
+            return null;
+        }
+        return readString(listed.body[0], 'sha');
     }
 
     private async request(
