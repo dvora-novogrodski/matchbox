@@ -13,6 +13,19 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/discover',
+    lazy: async () => {
+      const { DiscoverPage } = await import('src/features/discover');
+      return {
+        Component: () => (
+          <RequireAuth>
+            <DiscoverPage />
+          </RequireAuth>
+        ),
+      };
+    },
+  },
+  {
     path: '/pipeline',
     lazy: async () => {
       const { PipelinePage } = await import('src/features/pipeline');

@@ -4,6 +4,7 @@ export * from './constants/plans';
 export * from './constants/profile-limits';
 export * from './constants/statuses';
 export * from './schemas/cv.schema';
+export * from './schemas/discover.schema';
 export * from './schemas/job.schema';
 export * from './schemas/match.schema';
 export * from './schemas/pipeline.schema';

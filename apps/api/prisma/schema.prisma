@@ -237,13 +237,20 @@ model Company {
 }
 
 /// A posting shared across users. Identity is the normalized URL.
-/// Company, role, location, work mode, link, and description are per application.
+/// Manual jobs leave the posting text null; that text lives on the application.
+/// Discover fills it from the source, and saving copies it onto the application.
 model Job {
   id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   companyId               String?   @map("company_id") @db.Uuid
   source                  JobSource
   externalId              String?   @map("external_id")
   normalizedUrl           String?   @unique @map("normalized_url")
+  /// Canonical posting from a job source. Null for a manual job.
+  title                   String?
+  location                String?
+  workMode                WorkMode? @map("work_mode")
+  url                     String?
+  description             String?
   /// Extracted by A2; AI-written. Empty until autofill exists.
   requirements            Json?
   extractionModel         String?   @map("extraction_model")

@@ -33,6 +33,15 @@ export function App() {
           {t('actions.openPipeline')}
         </Button>
         <Button
+          data-test="app-discover-button"
+          onClick={() => {
+            void navigate('/discover');
+          }}
+          variant="contained"
+        >
+          {t('actions.openDiscover')}
+        </Button>
+        <Button
           data-test="app-career-profile-button"
           onClick={() => {
             void navigate('/profile');

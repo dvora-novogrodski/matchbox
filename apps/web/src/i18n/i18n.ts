@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 import auth from './locales/en/auth.json';
 import common from './locales/en/common.json';
 import cv from './locales/en/cv.json';
+import discover from './locales/en/discover.json';
 import job from './locales/en/job.json';
 import pipeline from './locales/en/pipeline.json';
 import profile from './locales/en/profile.json';
@@ -14,7 +15,7 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 export const defaultNS = 'common';
 
 export const resources = {
-  en: { auth, common, cv, job, pipeline, profile },
+  en: { auth, common, cv, discover, job, pipeline, profile },
 } as const;
 
 void i18n.use(initReactI18next).init({
@@ -22,7 +23,7 @@ void i18n.use(initReactI18next).init({
     fallbackLng: 'en',
     supportedLngs: SUPPORTED_LANGUAGES,
     defaultNS,
-    ns: ['auth', defaultNS, 'cv', 'job', 'pipeline', 'profile'],
+    ns: ['auth', defaultNS, 'cv', 'discover', 'job', 'pipeline', 'profile'],
     resources,
     interpolation: { escapeValue: false },
     returnNull: false,
