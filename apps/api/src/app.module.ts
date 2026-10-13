@@ -13,6 +13,7 @@ import { CvModule } from './cv/cv.module';
 import { DiscoverModule } from './discover/discover.module';
 import { FollowUpsModule } from './follow-ups/follow-ups.module';
 import { JobsModule } from './jobs/jobs.module';
+import { KitModule } from './kit/kit.module';
 import { ProfileModule } from './profile/profile.module';
 import { StatusesModule } from './statuses/statuses.module';
 import { TailorModule } from './tailor/tailor.module';
@@ -30,6 +31,7 @@ import { TodayModule } from './today/today.module';
     DiscoverModule,
     FollowUpsModule,
     JobsModule,
+    KitModule,
     StatusesModule,
     ApplicationsModule,
     TailorModule,

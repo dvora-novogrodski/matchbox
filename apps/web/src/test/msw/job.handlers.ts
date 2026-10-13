@@ -1,10 +1,12 @@
 import {
     type ApplicationEvent,
+    ApplicationKitSchema,
     ApplicationSchema,
     type JobPage,
     JobPageSchema,
     type Status,
     StatusListSchema,
+    UpdateApplicationKitSchema,
     UpdateApplicationSchema,
 } from '@matchbox/shared';
 import { http, HttpResponse } from 'msw';
@@ -33,7 +35,17 @@ function noteEvent(text: string): ApplicationEvent {
 }
 
 export function createJobHandlers(page: JobPage = sampleJobPage(), statuses: Status[] = systemStatuses()) {
-    const state = { page: JobPageSchema.parse(structuredClone(page)), statuses };
+    const state = {
+        page: JobPageSchema.parse(structuredClone(page)),
+        statuses,
+        kit: ApplicationKitSchema.parse({
+            coverLetter: '',
+            whyCompany: '',
+            whyRole: '',
+            aboutYou: '',
+            saved: false,
+        }),
+    };
 
     return [
         http.get(`${baseUrl}/statuses`, () => HttpResponse.json(StatusListSchema.parse({ items: state.statuses }))),
@@ -123,6 +135,35 @@ export function createJobHandlers(page: JobPage = sampleJobPage(), statuses: Sta
                 ...state.page.events,
             ];
             return new HttpResponse(null, { status: 204 });
+        }),
+        http.get(`${baseUrl}/applications/:applicationId/kit`, ({ params }) => {
+            if (params.applicationId !== state.page.application.id) {
+                return HttpResponse.json(
+                    { statusCode: 404, code: 'KIT_NOT_FOUND', message: 'This application was not found' },
+                    { status: 404 },
+                );
+            }
+            return HttpResponse.json(ApplicationKitSchema.parse(state.kit));
+        }),
+        http.put(`${baseUrl}/applications/:applicationId/kit`, async ({ params, request }) => {
+            const input = UpdateApplicationKitSchema.parse(await request.json());
+            if (params.applicationId !== state.page.application.id) {
+                return HttpResponse.json(
+                    { statusCode: 404, code: 'KIT_NOT_FOUND', message: 'This application was not found' },
+                    { status: 404 },
+                );
+            }
+            state.kit = ApplicationKitSchema.parse({ ...input, saved: true });
+            return HttpResponse.json(state.kit);
+        }),
+        http.get(`${baseUrl}/applications/:applicationId/kit/pdf`, ({ params }) => {
+            if (params.applicationId !== state.page.application.id) {
+                return HttpResponse.json(
+                    { statusCode: 404, code: 'KIT_NOT_FOUND', message: 'This application was not found' },
+                    { status: 404 },
+                );
+            }
+            return new HttpResponse('%PDF-1.4', { headers: { 'content-type': 'application/pdf' } });
         }),
     ];
 }

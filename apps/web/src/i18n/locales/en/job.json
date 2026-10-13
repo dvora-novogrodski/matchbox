@@ -65,11 +65,24 @@
     "rejected": "Rejected"
   },
   "kit": {
-    "intro": "These templates are empty until an application kit can be generated.",
+    "intro": "Edit these drafts, then copy them into the application.",
     "coverLetterTitle": "Cover letter",
     "coverLetterTemplate": "Hello, I am applying for {{title}} at {{company}}.",
-    "answersTitle": "Answers",
-    "answersTemplate": "Why this role:"
+    "whyCompany": "Why this company",
+    "whyRole": "Why this role",
+    "aboutYou": "Tell us about yourself",
+    "save": "Save kit",
+    "saved": "Kit saved.",
+    "saveFailed": "The kit could not be saved. Please try again.",
+    "loadFailed": "The kit could not be loaded. Please try again.",
+    "copyCoverLetter": "Copy cover letter",
+    "copyWhyCompany": "Copy why this company",
+    "copyWhyRole": "Copy why this role",
+    "copyAboutYou": "Copy tell us about yourself",
+    "copied": "Copied {{field}}.",
+    "copyFailed": "Could not copy. Please try again.",
+    "downloadCv": "Download CV PDF",
+    "downloadFailed": "The CV PDF could not be downloaded. Please try again."
   },
   "timeline": {
     "empty": "No activity yet.",

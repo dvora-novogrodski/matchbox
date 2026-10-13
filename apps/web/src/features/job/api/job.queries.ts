@@ -2,7 +2,7 @@ import type { CreateManualJob } from '@matchbox/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { applicationKeys, changeApplicationStatus } from 'src/features/pipeline';
 
-import { createManualJob, decideCvChange, getCvChanges, getJobMatch, getJobPage, recordFollowUp, saveJobCv, tailorCv, updateApplication } from './job.api';
+import { createManualJob, decideCvChange, downloadKitPdf, getApplicationKit, getCvChanges, getJobMatch, getJobPage, recordFollowUp, saveJobCv, tailorCv, updateApplication, updateApplicationKit } from './job.api';
 
 export const jobKeys = {
     all: ['jobs'] as const,
@@ -100,6 +100,34 @@ export function useDecideCvChange(applicationId: string) {
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: jobKeys.changes(applicationId) });
         },
+    });
+}
+
+export const kitKeys = {
+    detail: (applicationId: string) => ['kit', applicationId] as const,
+};
+
+export function useApplicationKit(applicationId: string) {
+    return useQuery({
+        queryKey: kitKeys.detail(applicationId),
+        queryFn: () => getApplicationKit(applicationId),
+        enabled: applicationId.length > 0,
+    });
+}
+
+export function useUpdateApplicationKit(applicationId: string) {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (input: Parameters<typeof updateApplicationKit>[1]) => updateApplicationKit(applicationId, input),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: kitKeys.detail(applicationId) });
+        },
+    });
+}
+
+export function useDownloadKitPdf() {
+    return useMutation({
+        mutationFn: (applicationId: string) => downloadKitPdf(applicationId),
     });
 }
 

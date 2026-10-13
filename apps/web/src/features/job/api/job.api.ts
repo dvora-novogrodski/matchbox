@@ -1,5 +1,5 @@
-import type { Application, CreateManualJob, CvChangeDecision, JobMatchResponse, JobPage, SavedJobCv, TailorResult, UpdateApplication } from '@matchbox/shared';
-import { ApplicationSchema, CreateManualJobSchema, CvChangeSchema, JobMatchResponseSchema, JobPageSchema, SavedJobCvSchema, TailorResultSchema, UpdateApplicationSchema } from '@matchbox/shared';
+import type { Application, ApplicationKit, CreateManualJob, CvChangeDecision, JobMatchResponse, JobPage, SavedJobCv, TailorResult, UpdateApplication, UpdateApplicationKit } from '@matchbox/shared';
+import { ApplicationKitSchema, ApplicationSchema, CreateManualJobSchema, CvChangeSchema, JobMatchResponseSchema, JobPageSchema, SavedJobCvSchema, TailorResultSchema, UpdateApplicationKitSchema, UpdateApplicationSchema } from '@matchbox/shared';
 import { httpClient } from 'src/lib/http/http-client';
 
 export async function getJobPage(jobId: string): Promise<JobPage> {
@@ -44,4 +44,27 @@ export async function decideCvChange(applicationId: string, changeId: string, de
 export async function saveJobCv(applicationId: string): Promise<SavedJobCv> {
     const response = await httpClient.post<unknown>(`/applications/${applicationId}/cv-versions`);
     return SavedJobCvSchema.parse(response.data);
+}
+
+export async function getApplicationKit(applicationId: string): Promise<ApplicationKit> {
+    const response = await httpClient.get<unknown>(`/applications/${applicationId}/kit`);
+    return ApplicationKitSchema.parse(response.data);
+}
+
+export async function updateApplicationKit(applicationId: string, input: UpdateApplicationKit): Promise<ApplicationKit> {
+    const response = await httpClient.put<unknown>(
+        `/applications/${applicationId}/kit`,
+        UpdateApplicationKitSchema.parse(input),
+    );
+    return ApplicationKitSchema.parse(response.data);
+}
+
+export async function downloadKitPdf(applicationId: string): Promise<void> {
+    const response = await httpClient.get<Blob>(`/applications/${applicationId}/kit/pdf`, { responseType: 'blob' });
+    const url = URL.createObjectURL(response.data);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'cv.pdf';
+    anchor.click();
+    URL.revokeObjectURL(url);
 }

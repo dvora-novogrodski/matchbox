@@ -233,7 +233,13 @@ function JobContent({
             ) : null}
             {tab === 'match' ? <MatchPanel jobId={application.job.id} requirements={page.requirements} /> : null}
             {tab === 'cv' ? <CvPanel applicationId={application.id} jobId={application.job.id} versions={page.cvVersions} /> : null}
-            {tab === 'kit' ? <KitPanel companyName={application.job.companyName} title={application.job.title} /> : null}
+            {tab === 'kit' ? (
+                <KitPanel
+                    applicationId={application.id}
+                    companyName={application.job.companyName}
+                    title={application.job.title}
+                />
+            ) : null}
             {tab === 'timeline' ? (
                 <TimelinePanel
                     applicationId={application.id}

@@ -330,6 +330,8 @@ model Application {
   recruiterName    String?   @map("recruiter_name")
   recruiterContact String?   @map("recruiter_contact")
   notes            String?
+  /// User-edited cover letter and answers (F12). Null until the first save.
+  kit              Json?
   appliedAt        DateTime? @map("applied_at") @db.Timestamptz(3)
   /// Drives follow-up reminders (F11).
   lastActivityAt   DateTime  @default(now()) @map("last_activity_at") @db.Timestamptz(3)

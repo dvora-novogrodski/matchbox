@@ -7,6 +7,7 @@ export * from './schemas/cv.schema';
 export * from './schemas/discover.schema';
 export * from './schemas/follow-up.schema';
 export * from './schemas/job.schema';
+export * from './schemas/kit.schema';
 export * from './schemas/match.schema';
 export * from './schemas/pipeline.schema';
 export * from './schemas/profile.schema';

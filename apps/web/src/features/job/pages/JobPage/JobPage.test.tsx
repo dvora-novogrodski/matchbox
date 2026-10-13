@@ -5,7 +5,7 @@ import { createJobHandlers, sampleJobPage } from 'src/test/msw/job.handlers';
 import { sampleApplication } from 'src/test/msw/pipeline.handlers';
 import { server } from 'src/test/msw/server';
 import { renderWithProviders } from 'src/test/render-with-providers';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { JobPage } from './JobPage';
 
@@ -128,7 +128,7 @@ describe('JobPage', () => {
         await screen.findByRole('heading', { name: 'Engineer' });
         await user.click(screen.getByRole('button', { name: 'Prepare to apply' }));
 
-        expect(await screen.findByText('Hello, I am applying for Engineer at Acme.')).toBeInTheDocument();
+        expect(await screen.findByLabelText('Cover letter')).toHaveValue('Hello, I am applying for Engineer at Acme.');
         await user.click(screen.getByRole('button', { name: 'Mark as applied' }));
 
         await waitFor(() => {
@@ -258,5 +258,36 @@ describe('JobPage', () => {
         expect(screen.getByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
         await user.click(screen.getByRole('tab', { name: 'Overview' }));
         expect(await screen.findByText('Build things')).toBeInTheDocument();
+    });
+
+    it('should edit the application kit and download the CV', async () => {
+        const user = userEvent.setup();
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+        const createObjectURL = vi.fn(() => 'blob:cv');
+        Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL });
+        Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+        server.use(...createJobHandlers());
+
+        renderJobPage();
+        await screen.findByRole('heading', { name: 'Engineer' });
+        await user.click(screen.getByRole('tab', { name: 'Application kit' }));
+
+        const coverLetter = await screen.findByLabelText('Cover letter');
+        expect(coverLetter).toHaveValue('Hello, I am applying for Engineer at Acme.');
+        await user.clear(coverLetter);
+        await user.type(coverLetter, 'I would like this role.');
+        await user.type(screen.getByLabelText('Why this company'), 'The product');
+        await user.click(screen.getByRole('button', { name: 'Save kit' }));
+
+        expect(await screen.findByText('Kit saved.')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Copy cover letter' }));
+        expect(await screen.findByText('Copied Cover letter.')).toBeInTheDocument();
+        expect(writeText).toHaveBeenCalledWith('I would like this role.');
+
+        await user.click(screen.getByRole('button', { name: 'Download CV PDF' }));
+        await waitFor(() => {
+            expect(createObjectURL).toHaveBeenCalled();
+        });
     });
 });
