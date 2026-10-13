@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Today",
+    "description": "What to do next."
+  },
+  "empty": "Nothing needs you right now.",
+  "errors": {
+    "loadFailed": "Today could not be loaded. Please try again."
+  },
+  "stats": {
+    "matches_one": "{{count}} match to review",
+    "matches_other": "{{count}} matches to review",
+    "toTailor_one": "{{count}} CV to tailor",
+    "toTailor_other": "{{count}} CVs to tailor",
+    "followUps_one": "{{count}} follow-up due",
+    "followUps_other": "{{count}} follow-ups due",
+    "inProgress_one": "{{count}} in progress",
+    "inProgress_other": "{{count}} in progress"
+  },
+  "sections": {
+    "matches": "Review",
+    "toTailor": "Tailor a CV",
+    "followUps": "Follow up"
+  },
+  "actions": {
+    "review": "Review",
+    "reviewLabel": "Review {{title}}",
+    "tailor": "Tailor CV",
+    "tailorLabel": "Tailor CV for {{title}}",
+    "open": "Open",
+    "openLabel": "Open {{title}}"
+  },
+  "card": {
+    "score": "Match {{score}}",
+    "lastActivity": "Last activity {{when}}"
+  }
+}

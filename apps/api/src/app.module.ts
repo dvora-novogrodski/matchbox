@@ -16,6 +16,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { ProfileModule } from './profile/profile.module';
 import { StatusesModule } from './statuses/statuses.module';
 import { TailorModule } from './tailor/tailor.module';
+import { TodayModule } from './today/today.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TailorModule } from './tailor/tailor.module';
     StatusesModule,
     ApplicationsModule,
     TailorModule,
+    TodayModule,
   ],
   providers: [
     AppConfig,

@@ -24,6 +24,15 @@ export function App() {
         )}
         {signOut.isError ? <Alert severity="error">{t('errors.signOutFailed')}</Alert> : null}
         <Button
+          data-test="app-today-button"
+          onClick={() => {
+            void navigate('/today');
+          }}
+          variant="contained"
+        >
+          {t('actions.openToday')}
+        </Button>
+        <Button
           data-test="app-pipeline-button"
           onClick={() => {
             void navigate('/pipeline');

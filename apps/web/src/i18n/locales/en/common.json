@@ -4,6 +4,7 @@
     "signedInAs": "Signed in as {{email}}"
   },
   "actions": {
+    "openToday": "Open today",
     "openPipeline": "Open pipeline",
     "openDiscover": "Open discover",
     "openCareerProfile": "Open career profile",

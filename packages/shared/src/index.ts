@@ -11,4 +11,5 @@ export * from './schemas/match.schema';
 export * from './schemas/pipeline.schema';
 export * from './schemas/profile.schema';
 export * from './schemas/tailor.schema';
+export * from './schemas/today.schema';
 export * from './schemas/users.schema';
