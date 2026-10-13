@@ -101,5 +101,28 @@ export function createJobHandlers(page: JobPage = sampleJobPage(), statuses: Sta
             ];
             return HttpResponse.json(ApplicationSchema.parse(state.page.application));
         }),
+        http.post(`${baseUrl}/applications/:applicationId/follow-ups`, ({ params }) => {
+            if (params.applicationId !== state.page.application.id) {
+                return HttpResponse.json(
+                    { statusCode: 404, code: 'FOLLOW_UP_NOT_FOUND', message: 'This application was not found' },
+                    { status: 404 },
+                );
+            }
+            const now = new Date().toISOString();
+            state.page.application = ApplicationSchema.parse({
+                ...state.page.application,
+                lastActivityAt: now,
+                updatedAt: now,
+            });
+            state.page.events = [
+                {
+                    id: '0199bcdf-20fc-744f-bc8b-6ef7c25cd503',
+                    type: 'follow_up',
+                    occurredAt: now,
+                },
+                ...state.page.events,
+            ];
+            return new HttpResponse(null, { status: 204 });
+        }),
     ];
 }

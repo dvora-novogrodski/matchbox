@@ -2,7 +2,7 @@ import type { CreateManualJob } from '@matchbox/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { applicationKeys, changeApplicationStatus } from 'src/features/pipeline';
 
-import { createManualJob, decideCvChange, getCvChanges, getJobMatch, getJobPage, saveJobCv, tailorCv, updateApplication } from './job.api';
+import { createManualJob, decideCvChange, getCvChanges, getJobMatch, getJobPage, recordFollowUp, saveJobCv, tailorCv, updateApplication } from './job.api';
 
 export const jobKeys = {
     all: ['jobs'] as const,
@@ -25,6 +25,17 @@ export function useJobMatch(jobId: string) {
         queryFn: () => getJobMatch(jobId),
         enabled: jobId.length > 0,
         retry: false,
+    });
+}
+
+export function useRecordFollowUp(jobId: string) {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (applicationId: string) => recordFollowUp(applicationId),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: jobKeys.detail(jobId) });
+            void queryClient.invalidateQueries({ queryKey: applicationKeys.all });
+        },
     });
 }
 

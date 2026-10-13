@@ -17,6 +17,10 @@ export async function getJobMatch(jobId: string): Promise<JobMatchResponse> {
     return JobMatchResponseSchema.parse(response.data);
 }
 
+export async function recordFollowUp(applicationId: string): Promise<void> {
+    await httpClient.post(`/applications/${applicationId}/follow-ups`);
+}
+
 export async function updateApplication(applicationId: string, input: UpdateApplication): Promise<Application> {
     const response = await httpClient.patch<unknown>(`/applications/${applicationId}`, UpdateApplicationSchema.parse(input));
     return ApplicationSchema.parse(response.data);

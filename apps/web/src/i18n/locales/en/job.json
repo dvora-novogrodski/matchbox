@@ -79,7 +79,9 @@
     "note": "Note",
     "created": "Application created",
     "email": "Email",
-    "followUp": "Follow-up"
+    "followUp": "Follow-up",
+    "record": "I followed up",
+    "recordFailed": "The follow-up could not be saved. Please try again."
   },
   "validation": {
     "tooLong": "This is too long."

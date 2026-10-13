@@ -5,6 +5,7 @@ export interface PlanLimits {
   'discover.quietHours': string;
   'discover.maxCompanies': number | null; // null = unlimited
   'ai.dailyCallBudget': number;
+  'followUp.afterDays': number;
   features: string[]; // enabled P2 features
 }
 
@@ -15,6 +16,7 @@ export const PLANS: Record<string, PlanLimits> = {
     'discover.quietHours': '00:00-07:00',
     'discover.maxCompanies': null,
     'ai.dailyCallBudget': 200,
+    'followUp.afterDays': 7,
     features: [],
   },
 };

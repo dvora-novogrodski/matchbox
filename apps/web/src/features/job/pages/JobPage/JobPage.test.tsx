@@ -81,6 +81,18 @@ describe('JobPage', () => {
         expect(await screen.findByText('Called Tuesday')).toBeInTheDocument();
     });
 
+    it('should record a follow-up on the timeline', async () => {
+        const user = userEvent.setup();
+        server.use(...createJobHandlers());
+
+        renderJobPage();
+        await screen.findByRole('heading', { name: 'Engineer' });
+        await user.click(screen.getByRole('tab', { name: 'Timeline' }));
+        await user.click(screen.getByRole('button', { name: 'I followed up' }));
+
+        expect(await screen.findByText('Follow-up')).toBeInTheDocument();
+    });
+
     it('should open the CV tab from the primary action when there is no CV', async () => {
         const user = userEvent.setup();
         server.use(...createJobHandlers());
