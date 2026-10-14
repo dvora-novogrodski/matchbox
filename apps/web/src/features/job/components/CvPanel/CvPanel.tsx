@@ -1,8 +1,10 @@
 import type { ApplicationCvVersionSummary, CvChange, CvChangeState } from '@matchbox/shared';
-import { Alert, Button, Chip, CircularProgress, Stack, Typography } from '@matchbox/ui';
+import { Alert, Box, Button, Chip, CircularProgress, Stack, Typography } from '@matchbox/ui';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { AiUnavailable } from 'src/components/AiUnavailable/AiUnavailable';
+import { EmptyIllustration } from 'src/components/EmptyIllustration';
+import { illustrations } from 'src/constants/media';
 import { ApiError } from 'src/lib/http/http-client';
 import { formatDate } from 'src/utils/format.utils';
 
@@ -52,12 +54,13 @@ export function CvPanel({ applicationId, jobId, versions }: CvPanelProps) {
             ) : null}
             {save.data && !save.data.githubSynced ? <Alert severity="info">{t('cv.savedWithoutGithub')}</Alert> : null}
             <Button
+                color={items.length > 0 ? 'primary' : 'accent'}
                 data-test="job-tailor-button"
                 disabled={tailor.isPending}
                 onClick={() => {
                     tailor.mutate();
                 }}
-                variant="contained"
+                variant={items.length > 0 ? 'outlined' : 'contained'}
             >
                 {items.length > 0 ? t('actions.tailorAgain') : t('actions.tailorCv')}
             </Button>
@@ -91,8 +94,9 @@ export function CvPanel({ applicationId, jobId, versions }: CvPanelProps) {
                 </Stack>
             ) : null}
             {!changes.isPending && items.length === 0 && versions.length === 0 ? (
-                <Stack spacing={2}>
-                    <Typography>{t('cv.empty')}</Typography>
+                <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2, textAlign: 'center' }}>
+                    <EmptyIllustration src={illustrations.emptyCv} />
+                    <Typography sx={{ fontSize: '0.875rem', maxWidth: 400 }}>{t('cv.empty')}</Typography>
                     <Button component={RouterLink} data-test="job-open-base-cv-button" to="/cv" variant="outlined">
                         {t('actions.openBaseCv')}
                     </Button>
@@ -133,7 +137,19 @@ function CvChangeCard({ change, pending, onDecide }: CvChangeCardProps) {
         <Stack data-test={`cv-change-${change.id}`} spacing={1}>
             <Chip label={t(STATE_LABELS[change.state])} size="small" sx={{ alignSelf: 'flex-start' }} />
             {change.before ? <Typography color="text.secondary">{change.before}</Typography> : null}
-            <Typography>{change.after}</Typography>
+            <Box
+                sx={{
+                    bgcolor: 'accentTint',
+                    borderColor: 'accent.main',
+                    borderLeftWidth: 2,
+                    borderLeftStyle: 'solid',
+                    borderRadius: 0,
+                    pl: 2,
+                    py: 1,
+                }}
+            >
+                <Typography>{change.after}</Typography>
+            </Box>
             {change.rationale ? <Typography color="text.secondary">{change.rationale}</Typography> : null}
             {change.evidence.length > 0 ? (
                 <Typography color="text.secondary">

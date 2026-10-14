@@ -19,10 +19,16 @@
     "match": "Match",
     "cv": "CV",
     "kit": "Application kit",
-    "timeline": "Timeline"
+    "timeline": "Timeline",
+    "aiBadge": "AI"
+  },
+  "meta": {
+    "applied": "Applied {{date}}"
   },
   "match": {
-    "empty": "Not analyzed yet",
+    "empty": "Run tailoring or wait for discovery to analyze how this role fits your profile.",
+    "emptyTitle": "No match analysis yet",
+    "scoreLabel": "{{score}}% match",
     "unavailable": "Match analysis unavailable. Try again.",
     "loadFailed": "Match analysis could not be loaded. Please try again.",
     "requirementUnavailable": "Requirement no longer on this job",
@@ -34,7 +40,7 @@
   "overview": {
     "description": "Posting",
     "descriptionEmpty": "No description yet.",
-    "status": "Status",
+    "details": "Application details",
     "statusFor": "Status for {{title}}",
     "recruiterName": "Recruiter",
     "recruiterContact": "Recruiter contact",
@@ -82,10 +88,14 @@
     "copied": "Copied {{field}}.",
     "copyFailed": "Could not copy. Please try again.",
     "downloadCv": "Download CV PDF",
-    "downloadFailed": "The CV PDF could not be downloaded. Please try again."
+    "downloadFailed": "The CV PDF could not be downloaded. Please try again.",
+    "exportTitle": "Export",
+    "exportDescription": "Download the tailored CV PDF for this application when you are ready to submit."
   },
   "timeline": {
-    "empty": "No activity yet.",
+    "intro": "Status changes, notes, and follow-ups for this application.",
+    "emptyTitle": "No activity yet",
+    "empty": "Save notes on the Overview tab or record a follow-up when you hear back.",
     "statusChanged": "Status changed from {{from}} to {{to}}",
     "statusChangedUnknown": "Status changed",
     "unknownStatus": "Unknown status",
@@ -102,6 +112,7 @@
   "add": {
     "title": "Add a job",
     "description": "Save a job you found yourself.",
+    "hint": "Paste the posting link when you have it. Company and role are required.",
     "company": "Company",
     "role": "Role",
     "url": "Link",

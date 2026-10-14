@@ -25,6 +25,7 @@ export class TodayService {
             jobId: item.jobId,
             title: item.title,
             companyName: item.companyName,
+            jobUrl: item.url,
             score: item.score,
         }));
         return {

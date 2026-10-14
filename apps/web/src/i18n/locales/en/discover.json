@@ -3,14 +3,19 @@
     "title": "Discover",
     "description": "Jobs found for you. Save one to add it to your pipeline, or skip it."
   },
-  "empty": "No new matches to review.",
+  "emptyTitle": "No new matches to review",
+  "empty": "When discovery finds roles that fit your profile, they will show up here.",
+  "actions": {
+    "addJob": "Add a job manually"
+  },
   "errors": {
     "loadFailed": "Matches could not be loaded. Please try again.",
     "saveFailed": "This job could not be saved. Please try again.",
     "skipFailed": "This job could not be skipped. Please try again."
   },
   "card": {
-    "score": "Match {{score}}",
+    "score": "{{score}}% match",
+    "whyItFits": "Why it fits",
     "posting": "View posting",
     "save": "Save",
     "skip": "Skip",

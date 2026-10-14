@@ -34,12 +34,12 @@ describe('TodayPage', () => {
 
         renderWithProviders(<TodayPage />);
 
-        expect(await screen.findByText('Nothing needs you right now.')).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument();
-        expect(screen.getByText('0 matches to review')).toBeInTheDocument();
-        expect(screen.getByText('0 CVs to tailor')).toBeInTheDocument();
-        expect(screen.getByText('0 follow-ups due')).toBeInTheDocument();
-        expect(screen.getByText('0 in progress')).toBeInTheDocument();
+        expect(await screen.findByText("You're all caught up.")).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /Good (morning|afternoon|evening)/ })).toBeInTheDocument();
+        expect(screen.getByTestId('today-stat-tile-matches')).toHaveTextContent('0');
+        expect(screen.getByTestId('today-stat-tile-toTailor')).toHaveTextContent('0');
+        expect(screen.getByTestId('today-stat-tile-followUps')).toHaveTextContent('0');
+        expect(screen.getByTestId('today-stat-tile-inProgress')).toHaveTextContent('0');
     });
 
     it('should list matches, cvs to tailor, and follow-ups', async () => {
@@ -65,21 +65,24 @@ describe('TodayPage', () => {
 
         renderWithProviders(<TodayPage />);
 
-        expect(await screen.findByRole('heading', { name: 'Review' })).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: 'Acme' })).toBeInTheDocument();
-        expect(screen.getByText('Match 82')).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Next up' })).toBeInTheDocument();
+        expect(screen.getByText('Review Engineer')).toBeInTheDocument();
+        expect(screen.getByText('82% match')).toBeInTheDocument();
+        expect(screen.getByTestId(`today-match-logo-${match.jobId}`).querySelector('img')).toHaveAttribute(
+            'src',
+            'https://www.google.com/s2/favicons?domain=acme.example&sz=128',
+        );
         expect(screen.getByRole('link', { name: 'Review Engineer' })).toHaveAttribute('href', '/discover');
-        expect(screen.getByRole('heading', { name: 'Tailor a CV' })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Tailor CV for Designer' })).toHaveAttribute(
+        expect(screen.getByText('Tailor your CV')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /Tailor CV for Designer/ })).toHaveAttribute(
             'href',
             `/jobs/${toTailor.jobId}/cv`,
         );
-        expect(screen.getByRole('heading', { name: 'Follow up' })).toBeInTheDocument();
+        expect(screen.getByText('Follow up with Stale Co')).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Open Waiting' })).toHaveAttribute(
             'href',
             `/jobs/${followUp.jobId}/timeline`,
         );
-        expect(screen.getByText('1 match to review')).toBeInTheDocument();
-        expect(screen.getByText('2 in progress')).toBeInTheDocument();
+        expect(screen.getByTestId('today-stat-tile-inProgress')).toHaveTextContent('2');
     });
 });

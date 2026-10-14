@@ -3,5 +3,6 @@ export type TodayApplicationRecord = {
     jobId: string;
     title: string;
     companyName: string;
+    jobUrl: string | null;
     lastActivityAt: Date;
 };

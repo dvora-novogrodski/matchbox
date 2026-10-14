@@ -1,29 +1,27 @@
 import type { UpdateApplication, WorkMode } from '@matchbox/shared';
 import {
     Alert,
-    Box,
     Button,
     Chip,
     CircularProgress,
     Stack,
     Tab,
     Tabs,
-    Typography,
-    useTheme,
 } from '@matchbox/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { statusLabel, statusTone, useStatuses } from 'src/features/pipeline';
+import { useStatuses } from 'src/features/pipeline';
 import { ApiError } from 'src/lib/http/http-client';
 
 import { useChangeJobStatus, useJobPage, useUpdateApplication } from '../../api/job.queries';
 import { CvPanel } from '../../components/CvPanel';
+import { JobHeader } from '../../components/JobHeader';
 import { KitPanel } from '../../components/KitPanel';
 import { MatchPanel } from '../../components/MatchPanel';
 import { OverviewPanel } from '../../components/OverviewPanel';
 import { TimelinePanel } from '../../components/TimelinePanel';
-import { type JobPrimaryAction, jobPrimaryAction } from '../../job-action';
+import { jobPrimaryAction } from '../../job-action';
 import { isJobTab, jobPath, type JobTab } from '../../job-tab';
 
 const WORK_MODE_LABELS = {
@@ -32,18 +30,10 @@ const WORK_MODE_LABELS = {
     remote: 'workMode.remote',
 } as const satisfies Record<WorkMode, `workMode.${WorkMode}`>;
 
-const PRIMARY_ACTION_LABELS = {
-    tailorCv: 'actions.tailorCv',
-    prepareToApply: 'actions.prepareToApply',
-    markApplied: 'actions.markApplied',
-} as const satisfies Record<JobPrimaryAction, `actions.${JobPrimaryAction}`>;
-
 export function JobPage() {
     const { jobId = '', tab: tabParam } = useParams();
-    const { t } = useTranslation('job');
-    const { t: tCommon } = useTranslation('common');
+    const { t, i18n } = useTranslation('job');
     const navigate = useNavigate();
-    const theme = useTheme();
     const [appliedStatusMissing, setAppliedStatusMissing] = useState(false);
     const job = useJobPage(jobId);
     const statuses = useStatuses();
@@ -94,41 +84,38 @@ export function JobPage() {
     }
 
     return (
-        <Box component="main" sx={{ p: 4 }}>
-            <Stack spacing={3}>
-                <Button component={RouterLink} data-test="job-back-button" sx={{ alignSelf: 'flex-start' }} to="/pipeline" variant="text">
-                    {t('actions.backToPipeline')}
-                </Button>
-                {isPending ? (
-                    <CircularProgress data-test="job-loading" />
-                ) : isError ? (
-                    <Alert severity="error">
-                        {job.error instanceof ApiError && job.error.statusCode === 404
-                            ? t('errors.notFound')
-                            : t('errors.loadFailed')}
-                    </Alert>
-                ) : application && job.data && statuses.data ? (
-                    <JobContent
-                        action={action}
-                        appliedStatusMissing={appliedStatusMissing}
-                        onChangeStatus={(statusId) => changeStatus.mutate({ applicationId: application.id, statusId })}
-                        onPrimaryAction={runPrimaryAction}
-                        onSave={(input) => updateApplication.mutate({ applicationId: application.id, input })}
-                        openTab={openTab}
-                        page={job.data}
-                        saveError={updateApplication.isError}
-                        saving={updateApplication.isPending}
-                        statusError={changeStatus.isError}
-                        statusName={statusLabel(application.status, tCommon)}
-                        statusPending={changeStatus.isPending}
-                        statuses={statuses.data.items}
-                        tab={tab}
-                        tone={statusTone(theme, application.status.category, application.status.color)}
-                        workModeLabel={application.job.workMode ? t(WORK_MODE_LABELS[application.job.workMode]) : null}
-                    />
-                ) : null}
-            </Stack>
-        </Box>
+        <Stack spacing={3}>
+            <Button component={RouterLink} data-test="job-back-button" sx={{ alignSelf: 'flex-start' }} to="/pipeline" variant="text">
+                {t('actions.backToPipeline')}
+            </Button>
+            {isPending ? (
+                <CircularProgress data-test="job-loading" />
+            ) : isError ? (
+                <Alert severity="error">
+                    {job.error instanceof ApiError && job.error.statusCode === 404
+                        ? t('errors.notFound')
+                        : t('errors.loadFailed')}
+                </Alert>
+            ) : application && job.data && statuses.data ? (
+                <JobContent
+                    action={action}
+                    appliedStatusMissing={appliedStatusMissing}
+                    language={i18n.language}
+                    onChangeStatus={(statusId) => changeStatus.mutate({ applicationId: application.id, statusId })}
+                    onPrimaryAction={runPrimaryAction}
+                    onSave={(input) => updateApplication.mutate({ applicationId: application.id, input })}
+                    openTab={openTab}
+                    page={job.data}
+                    saveError={updateApplication.isError}
+                    saving={updateApplication.isPending}
+                    statusError={changeStatus.isError}
+                    statusPending={changeStatus.isPending}
+                    statuses={statuses.data.items}
+                    tab={tab}
+                    workModeLabel={application.job.workMode ? t(WORK_MODE_LABELS[application.job.workMode]) : null}
+                />
+            ) : null}
+        </Stack>
     );
 }
 
@@ -136,10 +123,9 @@ type JobContentProps = {
     page: NonNullable<ReturnType<typeof useJobPage>['data']>;
     statuses: NonNullable<ReturnType<typeof useStatuses>['data']>['items'];
     tab: JobTab;
-    action: JobPrimaryAction | null;
-    statusName: string;
+    action: ReturnType<typeof jobPrimaryAction>;
     workModeLabel: string | null;
-    tone: { bg: string; fg: string };
+    language: string;
     saving: boolean;
     statusPending: boolean;
     saveError: boolean;
@@ -156,9 +142,8 @@ function JobContent({
     statuses,
     tab,
     action,
-    statusName,
     workModeLabel,
-    tone,
+    language,
     saving,
     statusPending,
     saveError,
@@ -174,35 +159,16 @@ function JobContent({
 
     return (
         <Stack spacing={3}>
-            <Stack
-                direction={{ xs: 'column', sm: 'row' }}
-                spacing={2}
-                sx={{ alignItems: { sm: 'flex-start' }, justifyContent: 'space-between' }}
-            >
-                <Stack spacing={1}>
-                    <Typography component="h1" variant="h3">
-                        {application.job.title}
-                    </Typography>
-                    <Typography color="text.secondary">{application.job.companyName}</Typography>
-                    {application.job.location || workModeLabel ? (
-                        <Stack direction="row" spacing={2}>
-                            {application.job.location ? <Typography>{application.job.location}</Typography> : null}
-                            {workModeLabel ? <Typography>{workModeLabel}</Typography> : null}
-                        </Stack>
-                    ) : null}
-                    <Chip data-test="job-status-chip" label={statusName} size="small" sx={{ alignSelf: 'flex-start', bgcolor: tone.bg, color: tone.fg }} />
-                </Stack>
-                {action ? (
-                    <Button
-                        data-test="job-primary-action-button"
-                        disabled={statusPending}
-                        onClick={onPrimaryAction}
-                        variant="contained"
-                    >
-                        {t(PRIMARY_ACTION_LABELS[action])}
-                    </Button>
-                ) : null}
-            </Stack>
+            <JobHeader
+                action={action}
+                application={application}
+                language={language}
+                onChangeStatus={onChangeStatus}
+                onPrimaryAction={onPrimaryAction}
+                statusPending={statusPending}
+                statuses={statuses}
+                workModeLabel={workModeLabel}
+            />
             {statusError ? <Alert severity="error">{t('errors.statusFailed')}</Alert> : null}
             {appliedStatusMissing ? <Alert severity="error">{t('errors.appliedStatusMissing')}</Alert> : null}
             <Tabs
@@ -216,20 +182,26 @@ function JobContent({
             >
                 <Tab data-test="job-tab-overview" label={t('tabs.overview')} value="overview" />
                 <Tab data-test="job-tab-match" label={t('tabs.match')} value="match" />
-                <Tab data-test="job-tab-cv" label={t('tabs.cv')} value="cv" />
+                <Tab
+                    aria-label={t('tabs.cv')}
+                    data-test="job-tab-cv"
+                    label={
+                        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+                            <span>{t('tabs.cv')}</span>
+                            <Chip
+                                label={t('tabs.aiBadge')}
+                                size="small"
+                                sx={{ bgcolor: 'accentTint', color: 'accentText', height: 20 }}
+                            />
+                        </Stack>
+                    }
+                    value="cv"
+                />
                 <Tab data-test="job-tab-kit" label={t('tabs.kit')} value="kit" />
                 <Tab data-test="job-tab-timeline" label={t('tabs.timeline')} value="timeline" />
             </Tabs>
             {tab === 'overview' ? (
-                    <OverviewPanel
-                    isSaving={saving}
-                    isStatusPending={statusPending}
-                    onChangeStatus={onChangeStatus}
-                    onSave={onSave}
-                    page={page}
-                    saveError={saveError}
-                    statuses={statuses}
-                />
+                <OverviewPanel isSaving={saving} onSave={onSave} page={page} saveError={saveError} />
             ) : null}
             {tab === 'match' ? <MatchPanel jobId={application.job.id} requirements={page.requirements} /> : null}
             {tab === 'cv' ? <CvPanel applicationId={application.id} jobId={application.job.id} versions={page.cvVersions} /> : null}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { statusLabel } from '../../status-label';
 import { ApplicationCard } from '../ApplicationCard';
+import { StatusDotLabel } from '../StatusDotLabel';
 
 type PipelineBoardProps = {
     statuses: Status[];
@@ -26,18 +27,19 @@ export function PipelineBoard({ statuses, applications, pendingApplicationId, on
                     <Paper
                         aria-label={label}
                         component="section"
+                        data-surface="muted"
                         data-test={`pipeline-board-column-${status.id}`}
                         key={status.id}
-                        sx={{ flex: '0 0 280px', p: 2 }}
+                        sx={{ flex: '0 0 256px', p: 1.5 }}
                         variant="outlined"
                     >
-                        <Stack spacing={2}>
-                            <Stack spacing={0.5}>
-                                <Typography component="h2" variant="h5">
-                                    {label}
-                                </Typography>
+                        <Stack spacing={1.5}>
+                            <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box component="h2" sx={{ m: 0 }}>
+                                    <StatusDotLabel status={status} />
+                                </Box>
                                 <Typography color="text.secondary" variant="body2">
-                                    {t('board.count', { count: column.length })}
+                                    {column.length}
                                 </Typography>
                             </Stack>
                             {column.length === 0 && hasApplications ? (

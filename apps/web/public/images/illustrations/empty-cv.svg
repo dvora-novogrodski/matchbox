@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120" fill="none"><title>No CV yet</title><ellipse cx="80" cy="110" rx="58" ry="4" fill="#ECE7E2"/>
+<g stroke="#232323" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M44 14h50l16 16v74H44z" fill="#FFFFFE"/>
+<path d="M94 14v16h16" fill="#F8F5F2"/>
+<path d="M54 50h44M54 60h44M54 70h30M54 84h40"/>
+</g>
+<rect x="54" y="28" width="26" height="8" rx="2" fill="#078080"/>
+<g stroke="#232323" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M104 96l20-34 8 5-20 34-10 4z" fill="#FFFFFE"/>
+<path d="M120 69l8 5"/>
+</g>
+<path d="M126 26l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#F45D48"/>
+</svg>

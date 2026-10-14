@@ -1,9 +1,12 @@
 {
   "app": {
     "title": "Matchbox",
+    "titleMatch": "Match",
+    "titleBox": "box",
     "signedInAs": "Signed in as {{email}}"
   },
   "actions": {
+    "addJob": "Add job",
     "openToday": "Open today",
     "openPipeline": "Open pipeline",
     "openDiscover": "Open discover",
@@ -11,8 +14,86 @@
     "openCv": "Open CV",
     "signOut": "Sign out"
   },
+  "nav": {
+    "main": "Main navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuFor": "{{section}} menu",
+    "today": "Today",
+    "discover": "Discover",
+    "pipeline": "Pipeline",
+    "career": "Career",
+    "profile": "Career profile",
+    "cv": "CV",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "noNotifications": "No new notifications",
+    "followUpNotifications_one": "{{count}} job needs a follow-up",
+    "followUpNotifications_other": "{{count}} jobs need a follow-up",
+    "userMenu": "Account menu",
+    "userFallback": "You"
+  },
+  "navMenus": {
+    "discover": {
+      "findJobs": "Find jobs",
+      "newMatches": "New matches",
+      "newMatchesDesc": "Jobs picked for your profile",
+      "skipped": "Skipped",
+      "skippedDesc": "Jobs you passed on",
+      "settings": "Settings",
+      "searchPreferences": "Search preferences",
+      "searchPreferencesDesc": "Roles, locations, work mode",
+      "featuredTitle": "{{count}} new matches today",
+      "featuredSubtitle": "Review what Discover found for you.",
+      "featuredButton": "Review"
+    },
+    "pipeline": {
+      "views": "Views",
+      "board": "Board",
+      "boardDesc": "Drag jobs between stages",
+      "table": "Table",
+      "tableDesc": "Sort and filter every job",
+      "filters": "Filters",
+      "active": "Active",
+      "activeDesc": "Everything still open",
+      "followUp": "Needs follow-up",
+      "followUpDesc": "No reply for 7+ days",
+      "interviews": "Interviews this week",
+      "interviewsDesc": "Upcoming calls and tasks",
+      "closed": "Closed",
+      "closedDesc": "Rejected and withdrawn",
+      "featuredTitle": "Found a job?",
+      "featuredSubtitle": "Paste the link and we fill in the rest.",
+      "featuredButton": "Add job"
+    },
+    "career": {
+      "profile": "Profile",
+      "experience": "Experience",
+      "experienceDesc": "Roles and bullet points",
+      "projects": "Projects",
+      "projectsDesc": "Side work and highlights",
+      "skills": "Skills",
+      "skillsDesc": "Languages, frameworks, tools",
+      "import": "Import from CV",
+      "importDesc": "Upload a PDF to start",
+      "cv": "CV",
+      "baseCv": "Base CV",
+      "baseCvDesc": "The version tailoring starts from",
+      "tailored": "Tailored CVs",
+      "tailoredDesc": "One per job",
+      "download": "Download PDF",
+      "downloadDesc": "Export your base CV",
+      "featuredTitle": "Profile 70% complete",
+      "featuredSubtitle": "Add a summary to improve match quality.",
+      "featuredButton": "Finish profile"
+    }
+  },
+  "search": {
+    "placeholder": "Search jobs and companies"
+  },
   "ai": {
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "spark": "✦"
   },
   "errors": {
     "profileUnavailable": "Your profile could not be loaded. Please try again.",

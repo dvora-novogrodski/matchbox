@@ -30,7 +30,7 @@ export function LoginPage() {
     setAuthError(undefined);
     try {
       await emailSignIn.mutateAsync({ email, password });
-      await navigate('/');
+      await navigate('/today');
     } catch (error) {
       setAuthError(toAuthErrorKey(error));
     }
@@ -40,7 +40,7 @@ export function LoginPage() {
     setAuthError(undefined);
     try {
       await googleSignIn.mutateAsync();
-      await navigate('/');
+      await navigate('/today');
     } catch (error) {
       setAuthError(toAuthErrorKey(error));
     }

@@ -40,7 +40,8 @@ describe('DiscoverPage', () => {
         renderWithProviders(<DiscoverPage />);
 
         expect(await screen.findByRole('heading', { name: 'Discover' })).toBeInTheDocument();
-        expect(await screen.findByText('No new matches to review.')).toBeInTheDocument();
+        expect(await screen.findByTestId('discover-empty')).toBeInTheDocument();
+        expect(screen.getByText('No new matches to review')).toBeInTheDocument();
     });
 
     it('should save a match and remove it from the queue', async () => {
@@ -50,10 +51,12 @@ describe('DiscoverPage', () => {
 
         renderWithProviders(<DiscoverPage />);
 
-        expect(await screen.findByRole('heading', { name: 'Acme' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
         expect(screen.getByText('Engineer')).toBeInTheDocument();
-        expect(screen.getByText('Tel Aviv · Hybrid')).toBeInTheDocument();
-        expect(screen.getByText('Match 82')).toBeInTheDocument();
+        expect(screen.getByText('Acme · Tel Aviv · Hybrid')).toBeInTheDocument();
+        expect(screen.getByText('82% match')).toBeInTheDocument();
+        expect(screen.getByText('Why it fits')).toBeInTheDocument();
+        expect(screen.getByText('TypeScript, Node.js, React')).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'View posting' })).toHaveAttribute(
             'href',
             'https://example.com/jobs/1',
@@ -62,7 +65,7 @@ describe('DiscoverPage', () => {
         await user.click(screen.getByRole('button', { name: 'Save Engineer' }));
 
         await waitFor(() => {
-            expect(screen.getByText('No new matches to review.')).toBeInTheDocument();
+            expect(screen.getByTestId('discover-empty')).toBeInTheDocument();
         });
     });
 
@@ -71,11 +74,11 @@ describe('DiscoverPage', () => {
         server.use(...createDiscoverHandlers([sampleDiscoverItem()]));
 
         renderWithProviders(<DiscoverPage />);
-        await screen.findByRole('heading', { name: 'Acme' });
+        await screen.findByRole('heading', { name: 'Engineer' });
         await user.click(screen.getByRole('button', { name: 'Skip Engineer' }));
 
         await waitFor(() => {
-            expect(screen.getByText('No new matches to review.')).toBeInTheDocument();
+            expect(screen.getByTestId('discover-empty')).toBeInTheDocument();
         });
     });
 
@@ -90,10 +93,10 @@ describe('DiscoverPage', () => {
         );
 
         renderWithProviders(<DiscoverPage />);
-        await screen.findByRole('heading', { name: 'Acme' });
+        await screen.findByRole('heading', { name: 'Engineer' });
         await user.click(screen.getByRole('button', { name: 'Save Engineer' }));
 
         expect(await screen.findByText('This job could not be saved. Please try again.')).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: 'Acme' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
     });
 });

@@ -8,6 +8,7 @@ export function toFollowUp(application: FollowUpRecord): FollowUp {
         jobId: application.jobId,
         title: application.title,
         companyName: application.companyName,
+        jobUrl: application.jobUrl,
         lastActivityAt: application.lastActivityAt.toISOString(),
     };
 }

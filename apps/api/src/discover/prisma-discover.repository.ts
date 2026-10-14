@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import type { Prisma } from '../generated/prisma/client';
 import { toSystemStatusKey } from '../statuses/status-key';
+import { toDiscoverFitLines } from './discover.mapper';
 import { DiscoverRepository } from './discover.repository';
 import type {
     DiscoverPosting,
@@ -54,6 +55,7 @@ export class PrismaDiscoverRepository extends DiscoverRepository {
                 url: match.job.url,
                 description: match.job.description,
                 score: match.score,
+                fitLines: toDiscoverFitLines(match.job.requirements, match.coverage),
             });
         }
         return items;

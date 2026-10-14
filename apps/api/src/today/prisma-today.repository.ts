@@ -39,6 +39,7 @@ function toRecord(application: {
     jobId: string;
     title: string;
     companyName: string;
+    url: string | null;
     lastActivityAt: Date;
 }): TodayApplicationRecord {
     return {
@@ -46,6 +47,7 @@ function toRecord(application: {
         jobId: application.jobId,
         title: application.title,
         companyName: application.companyName,
+        jobUrl: application.url,
         lastActivityAt: application.lastActivityAt,
     };
 }

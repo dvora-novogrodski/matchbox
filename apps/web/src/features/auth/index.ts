@@ -1,5 +1,5 @@
 export { useCurrentUser, useSignOut } from './api/auth.queries';
-export { AuthProvider } from './AuthProvider';
+export { AuthProvider, useFirebaseUser } from './AuthProvider';
 export { PublicOnly } from './components/PublicOnly/PublicOnly';
 export { RequireAuth } from './components/RequireAuth/RequireAuth';
 export { LoginPage } from './pages/LoginPage/LoginPage';

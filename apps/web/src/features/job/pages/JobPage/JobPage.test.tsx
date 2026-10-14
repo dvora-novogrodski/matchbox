@@ -57,12 +57,11 @@ describe('JobPage', () => {
         renderJobPage();
 
         expect(await screen.findByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
-        expect(screen.getByText('Acme')).toBeInTheDocument();
+        expect(screen.getByText(/Acme · Tel Aviv · Hybrid/)).toBeInTheDocument();
         expect(screen.getByText('Build things')).toBeInTheDocument();
-        expect(screen.getByText('Hybrid')).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'Overview' })).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'Match' })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: 'CV' })).toBeInTheDocument();
+        expect(screen.getByTestId('job-tab-cv')).toHaveAccessibleName('CV');
         expect(screen.getByRole('tab', { name: 'Application kit' })).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'Timeline' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Tailor CV' })).toBeInTheDocument();
@@ -173,7 +172,7 @@ describe('JobPage', () => {
 
         renderJobPage(`/jobs/${jobId}/match`);
 
-        expect(await screen.findByText('Score 80')).toBeInTheDocument();
+        expect(await screen.findByText('80% match')).toBeInTheDocument();
         expect(screen.getByText('TypeScript')).toBeInTheDocument();
         expect(screen.getByText('Covered')).toBeInTheDocument();
         expect(screen.getByText('Listed on the profile')).toBeInTheDocument();
@@ -218,7 +217,8 @@ describe('JobPage', () => {
 
         renderJobPage(`/jobs/${jobId}/match`);
 
-        expect(await screen.findByText('Not analyzed yet')).toBeInTheDocument();
+        expect(await screen.findByTestId('job-match-empty')).toBeInTheDocument();
+        expect(screen.getByText('No match analysis yet')).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Engineer' })).toBeInTheDocument();
         await user.click(screen.getByRole('tab', { name: 'Overview' }));

@@ -4,6 +4,7 @@ export const TodayMatchSchema = z.object({
     jobId: z.uuid(),
     title: z.string(),
     companyName: z.string(),
+    jobUrl: z.url().nullable(),
     score: z.number().int().min(0).max(100),
 });
 export type TodayMatch = z.infer<typeof TodayMatchSchema>;
@@ -13,6 +14,7 @@ export const TodayApplicationSchema = z.object({
     jobId: z.uuid(),
     title: z.string(),
     companyName: z.string(),
+    jobUrl: z.url().nullable(),
     lastActivityAt: z.iso.datetime(),
 });
 export type TodayApplication = z.infer<typeof TodayApplicationSchema>;

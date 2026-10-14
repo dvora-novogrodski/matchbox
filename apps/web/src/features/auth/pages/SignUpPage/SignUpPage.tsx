@@ -41,7 +41,7 @@ export function SignUpPage() {
     setAuthError(undefined);
     try {
       await googleSignIn.mutateAsync();
-      await navigate('/');
+      await navigate('/today');
     } catch (error) {
       setAuthError(toAuthErrorKey(error));
     }

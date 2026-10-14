@@ -1,0 +1,10 @@
+{
+  "page": {
+    "title": "Settings",
+    "description": "Your Matchbox account."
+  },
+  "account": {
+    "title": "Account",
+    "description": "Signed in with Google. Profile and CV data stay in your workspace."
+  }
+}

@@ -14,8 +14,9 @@ describe('CvPage', () => {
 
         renderWithProviders(<CvPage />);
 
-        expect(await screen.findByRole('heading', { name: 'CV' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Base CV' })).toBeInTheDocument();
         expect(await screen.findByRole('textbox', { name: 'Full name' })).toHaveValue('Ada Lovelace');
+        expect(screen.getByTestId('cv-workflow')).toBeInTheDocument();
         expect(screen.getByRole('checkbox', { name: 'Engineer — Analytical Engines' })).toBeChecked();
         expect(screen.getByTitle('CV preview')).toHaveAttribute('srcdoc', expect.stringContaining('Ada Lovelace'));
         expect(screen.getByText('GitHub is not connected. Versions stay in Matchbox until you connect a repository.')).toBeInTheDocument();

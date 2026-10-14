@@ -17,7 +17,7 @@ export function CvSectionList({ kind, items, selectedIds, onChange }: CvSectionL
 
     return (
         <Stack spacing={1}>
-            <Typography component="h2" variant="h5">
+            <Typography component="h2" sx={{ fontSize: '1rem', fontWeight: 600 }} variant="h6">
                 {t(`sections.${kind}`)}
             </Typography>
             {rows.length === 0 ? <Typography color="text.secondary">{t('sections.empty')}</Typography> : null}

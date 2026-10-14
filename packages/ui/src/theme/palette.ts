@@ -6,20 +6,31 @@ import { coral, teal, warm, white } from '../tokens';
 
 const { 0: _paper, ...greyScale } = warm;
 
+const muted = '#5F6463';
+const faint = '#9A9C99';
+const dividerLight = '#ECE7E2';
+const inputBorder = '#DAD4CD';
+const primaryTint = '#E1F1F0';
+const accentTint = '#FEEFE8';
+const accentText = '#C23F2C';
+
 export const lightPalette: PaletteOptions = {
-    text: { primary: warm[800], secondary: warm[700], tertiary: warm[600], disabled: warm[500] },
+    text: { primary: warm[800], secondary: muted, tertiary: faint, disabled: faint },
 
     // White on teal 500 passes AA (4.8:1); warm 800 on teal 500 does not (3.3:1).
     primary: { light: teal[400], main: teal[500], dark: teal[600], contrastText: white },
     secondary: { light: warm[700], main: warm[800], dark: warm[900], contrastText: white },
     // Coral is the signature accent only (highlights, illustration, the "flame"), with dark text.
     accent: { light: coral[400], main: coral[500], dark: coral[600], contrastText: warm[800] },
+    accentTint,
+    accentText,
+    primaryTint,
 
     // Error is a deeper crimson so it never reads as the decorative coral.
     error: { light: '#D9483B', main: '#B42318', dark: '#912018', contrastText: white },
-    warning: { light: '#B7791F', main: '#9A5F0E', dark: '#7C4B0A', contrastText: white },
-    info: { light: '#5A89B5', main: '#3B6E9E', dark: '#2D5880', contrastText: white },
-    success: { light: '#3F9159', main: '#2E7D46', dark: '#23633A', contrastText: white },
+    warning: { light: '#D4A24A', main: '#B8770F', dark: '#7C4B0A', contrastText: white },
+    info: { light: '#5A89B5', main: '#3B6FD8', dark: '#2D5880', contrastText: white },
+    success: { light: '#3F9159', main: '#2E8B57', dark: '#23633A', contrastText: white },
 
     grey: greyScale,
     action: {
@@ -30,9 +41,16 @@ export const lightPalette: PaletteOptions = {
         disabled: 'rgba(35, 35, 35, 0.26)',
         disabledBackground: 'rgba(35, 35, 35, 0.12)',
     },
-    divider: 'rgba(35, 35, 35, 0.12)',
+    divider: dividerLight,
     background: { default: warm[100], paper: warm[0] },
-    surface: { 50: warm[50], 100: warm[100], 200: warm[200], 300: warm[300], 400: warm[400], 500: '#D3CBC2' },
+    surface: {
+        50: warm[50],
+        100: warm[100],
+        200: warm[200],
+        300: warm[300],
+        400: warm[400],
+        500: inputBorder,
+    },
 
     status: {
         applied: { bg: '#E7EEF5', fg: '#2D5880' },
@@ -45,6 +63,9 @@ export const lightPalette: PaletteOptions = {
 
 export const darkPalette: PaletteOptions = {
     text: { primary: '#F2EFEC', secondary: '#CFCAC5', tertiary: '#A9A39D', disabled: '#6E6A66' },
+    accentTint: '#3D2A26',
+    accentText: coral[300],
+    primaryTint: 'rgba(77, 184, 184, 0.14)',
     primary: { light: '#7FCFCF', main: '#4DB8B8', dark: '#2E9E9E', contrastText: '#0B2222' },
     secondary: { light: '#F2EFEC', main: '#DFD8D0', dark: '#A19C97', contrastText: warm[800] },
     accent: { light: coral[300], main: coral[400], dark: coral[500], contrastText: warm[800] },

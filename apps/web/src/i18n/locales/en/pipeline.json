@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "Pipeline",
-    "description": "Applications grouped by status."
+    "description": "Applications grouped by status.",
+    "summary_one": "{{count}} application · {{active}} active",
+    "summary_other": "{{count}} applications · {{active}} active"
   },
   "actions": {
     "addJob": "Add job"
@@ -11,6 +13,16 @@
     "board": "Board",
     "table": "Table"
   },
+  "filters": {
+    "label": "Filter applications",
+    "all": "All applications",
+    "active": "Active",
+    "followUp": "Needs follow-up",
+    "interviews": "Interviews",
+    "closed": "Closed",
+    "search": "Search applications"
+  },
+  "emptyTitle": "Build your pipeline",
   "empty": "No applications yet. Jobs you save will show up here.",
   "board": {
     "emptyColumn": "Nothing here",
@@ -20,7 +32,11 @@
   "card": {
     "move": "Move",
     "moveTo": "Move {{title}}",
-    "lastActivity": "Last activity {{when}}"
+    "moreActions": "More actions for {{title}}",
+    "lastActivity": "Applied {{when}}",
+    "applied": "Applied {{when}}",
+    "saved": "Saved {{when}}",
+    "followUp": "Follow up"
   },
   "table": {
     "company": "Company",
@@ -29,7 +45,16 @@
     "statusFor": "Status for {{title}}",
     "lastActivity": "Last activity",
     "applied": "Applied",
-    "appliedEmpty": "Not yet"
+    "appliedEmpty": "Not yet",
+    "actions": "Actions",
+    "open": "Open",
+    "noResults": "No applications match these filters.",
+    "rowsPerPage": "Rows per page"
+  },
+  "workMode": {
+    "onsite": "On-site",
+    "hybrid": "Hybrid",
+    "remote": "Remote"
   },
   "errors": {
     "loadFailed": "Applications could not be loaded. Please try again.",

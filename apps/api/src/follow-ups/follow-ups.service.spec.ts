@@ -31,6 +31,7 @@ describe('FollowUpsService', () => {
             jobId: '0199bcdf-20fc-744f-bc8b-6ef7c25cd124',
             title: 'Engineer',
             companyName: 'Acme',
+            jobUrl: 'https://acme.example/jobs/engineer',
             lastActivityAt: new Date('2026-10-01T09:00:00.000Z'),
         };
         followUpsRepository.listDue.mockResolvedValue([due]);
@@ -43,6 +44,7 @@ describe('FollowUpsService', () => {
                 jobId: due.jobId,
                 title: due.title,
                 companyName: due.companyName,
+                jobUrl: due.jobUrl,
                 lastActivityAt: due.lastActivityAt.toISOString(),
             },
         ]);

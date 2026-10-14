@@ -1,1 +1,16 @@
 export * from './GoogleIcon';
+export { default as PlusIcon } from '@mui/icons-material/AddOutlined';
+export { default as AIIcon } from '@mui/icons-material/AutoAwesomeOutlined';
+export { default as CheckCircleOutlineIcon } from '@mui/icons-material/CheckCircleOutlineOutlined';
+export { default as XIcon } from '@mui/icons-material/CloseOutlined';
+export { default as CopyIcon } from '@mui/icons-material/ContentCopyOutlined';
+export { default as ChevronDownIcon } from '@mui/icons-material/KeyboardArrowDownOutlined';
+export { default as ChevronUpIcon } from '@mui/icons-material/KeyboardArrowUpOutlined';
+export { default as LogoutIcon } from '@mui/icons-material/LogoutOutlined';
+export { default as MenuIcon } from '@mui/icons-material/MenuOutlined';
+export { default as MoreIcon } from '@mui/icons-material/MoreHorizOutlined';
+export { default as NotificationIcon } from '@mui/icons-material/NotificationsNoneOutlined';
+export { default as RemoveCircleOutlineIcon } from '@mui/icons-material/RemoveCircleOutlineOutlined';
+export { default as SearchIcon } from '@mui/icons-material/SearchOutlined';
+export { default as SettingsIcon } from '@mui/icons-material/SettingsOutlined';
+export { default as WarningAmberIcon } from '@mui/icons-material/WarningAmberOutlined';

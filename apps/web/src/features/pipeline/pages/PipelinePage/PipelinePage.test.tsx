@@ -57,9 +57,9 @@ describe('PipelinePage', () => {
 
         const saved = await screen.findByRole('region', { name: 'Saved' });
         expect(within(saved).getByText('Acme')).toBeInTheDocument();
-        expect(within(saved).getByText('1 application')).toBeInTheDocument();
+        expect(within(saved).getByText(/Saved\s+1/)).toBeInTheDocument();
 
-        await user.click(within(saved).getByRole('button', { name: 'Move Engineer' }));
+        await user.click(within(saved).getByRole('button', { name: 'More actions for Engineer' }));
         await user.click(await screen.findByRole('menuitem', { name: 'Applied' }));
 
         await waitFor(() => {

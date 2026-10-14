@@ -21,5 +21,5 @@ export function PublicOnly({ allowUnverifiedUser = false, children }: PublicOnly
   }
 
   const shouldRedirect = user && (!allowUnverifiedUser || user.emailVerified);
-  return shouldRedirect ? <Navigate replace to="/" /> : children;
+  return shouldRedirect ? <Navigate replace to="/today" /> : children;
 }

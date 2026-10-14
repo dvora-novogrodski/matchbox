@@ -14,6 +14,7 @@ function buildApplication(overrides: Partial<TodayApplicationRecord> = {}): Toda
         jobId: JOB_ID,
         title: 'Engineer',
         companyName: 'Acme',
+        jobUrl: 'https://acme.example/jobs/engineer',
         lastActivityAt: NOW,
         ...overrides,
     };
@@ -48,6 +49,7 @@ describe('TodayService', () => {
                     url: null,
                     description: null,
                     score: 80,
+                    fitLines: [],
                 },
             ],
         };
@@ -63,6 +65,7 @@ describe('TodayService', () => {
                     jobId: followUp.jobId,
                     title: followUp.title,
                     companyName: followUp.companyName,
+                    jobUrl: followUp.jobUrl,
                     lastActivityAt: followUp.lastActivityAt.toISOString(),
                 },
             ],
@@ -74,13 +77,16 @@ describe('TodayService', () => {
 
         const result = await service.get(USER_ID);
 
-        expect(result.matches).toEqual([{ jobId: JOB_ID, title: 'Engineer', companyName: 'Acme', score: 80 }]);
+        expect(result.matches).toEqual([
+            { jobId: JOB_ID, title: 'Engineer', companyName: 'Acme', jobUrl: null, score: 80 },
+        ]);
         expect(result.toTailor).toEqual([
             {
                 applicationId: APPLICATION_ID,
                 jobId: JOB_ID,
                 title: 'Engineer',
                 companyName: 'Acme',
+                jobUrl: 'https://acme.example/jobs/engineer',
                 lastActivityAt: NOW.toISOString(),
             },
         ]);

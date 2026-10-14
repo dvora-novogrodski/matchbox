@@ -79,6 +79,7 @@ describe('Today (e2e)', () => {
                 externalId: 'match',
                 companyId: company.id,
                 title: 'Matched role',
+                url: 'https://higher.example/jobs/matched-role',
             },
         });
         await prisma.jobMatch.create({
@@ -100,6 +101,7 @@ describe('Today (e2e)', () => {
                 statusId: saved.id,
                 companyName: 'Needs Co',
                 title: 'Needs a CV',
+                url: 'https://needs.example/jobs/needs-cv',
                 lastActivityAt: new Date('2026-10-10T09:00:00.000Z'),
             },
         });
@@ -124,6 +126,7 @@ describe('Today (e2e)', () => {
                 statusId: applied.id,
                 companyName: 'Stale Co',
                 title: 'Waiting',
+                url: 'https://stale.example/jobs/waiting',
                 lastActivityAt: idleSince,
             },
         });
@@ -169,10 +172,18 @@ describe('Today (e2e)', () => {
         expect(response.statusCode).toBe(200);
         const body = TodaySchema.parse(response.json());
         expect(body.matches).toEqual([
-            { jobId: matchedJob.id, title: 'Matched role', companyName: 'Higher Co', score: 88 },
+            {
+                jobId: matchedJob.id,
+                title: 'Matched role',
+                companyName: 'Higher Co',
+                jobUrl: 'https://higher.example/jobs/matched-role',
+                score: 88,
+            },
         ]);
         expect(body.toTailor.map((item) => item.applicationId)).toEqual([needsCv.id]);
         expect(body.followUps.map((item) => item.applicationId)).toEqual([stale.id]);
+        expect(body.toTailor[0]?.jobUrl).toBe('https://needs.example/jobs/needs-cv');
+        expect(body.followUps[0]?.jobUrl).toBe('https://stale.example/jobs/waiting');
         expect(body.stats).toEqual({ matches: 1, toTailor: 1, followUps: 1, inProgress: 2 });
     });
 });

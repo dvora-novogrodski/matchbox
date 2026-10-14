@@ -37,3 +37,8 @@ export function useAuth(): AuthContextValue {
   }
   return context;
 }
+
+export function useFirebaseUser(): User | null {
+  const context = useContext(AuthContext);
+  return context?.user ?? null;
+}

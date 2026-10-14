@@ -3,5 +3,6 @@ export type FollowUpRecord = {
     jobId: string;
     title: string;
     companyName: string;
+    jobUrl: string | null;
     lastActivityAt: Date;
 };

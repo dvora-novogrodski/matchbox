@@ -3,24 +3,36 @@
     "title": "Today",
     "description": "What to do next."
   },
-  "empty": "Nothing needs you right now.",
+  "greeting": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}",
+    "needsYou_one": "{{date}} · {{count}} thing needs you today",
+    "needsYou_other": "{{date}} · {{count}} things need you today",
+    "caughtUp": "{{date}} · You're all caught up"
+  },
+  "empty": "You're all caught up.",
+  "emptyHint": "Browse Discover for new roles that fit your profile.",
   "errors": {
     "loadFailed": "Today could not be loaded. Please try again."
   },
-  "stats": {
-    "matches_one": "{{count}} match to review",
-    "matches_other": "{{count}} matches to review",
-    "toTailor_one": "{{count}} CV to tailor",
-    "toTailor_other": "{{count}} CVs to tailor",
-    "followUps_one": "{{count}} follow-up due",
-    "followUps_other": "{{count}} follow-ups due",
-    "inProgress_one": "{{count}} in progress",
-    "inProgress_other": "{{count}} in progress"
+  "tiles": {
+    "matchesLabel": "New matches",
+    "matchesLink": "Review",
+    "toTailorLabel": "CVs to tailor",
+    "toTailorLink": "Open",
+    "followUpsLabel": "Follow-ups",
+    "followUpsLink": "See jobs",
+    "inProgressLabel": "In progress",
+    "inProgressLink": "Pipeline"
   },
   "sections": {
-    "matches": "Review",
-    "toTailor": "Tailor a CV",
-    "followUps": "Follow up"
+    "nextUp": "Next up",
+    "viewAll": "View all",
+    "aiCardTitle_one": "{{count}} new job matches your profile",
+    "aiCardTitle_other": "{{count}} new jobs match your profile",
+    "aiCardTopMatch": "Top match: {{company}}",
+    "aiCardRole": "{{title}}, {{score}}%"
   },
   "actions": {
     "review": "Review",
@@ -28,10 +40,17 @@
     "tailor": "Tailor CV",
     "tailorLabel": "Tailor CV for {{title}}",
     "open": "Open",
-    "openLabel": "Open {{title}}"
+    "openLabel": "Open {{title}}",
+    "openDiscover": "Open Discover",
+    "followUp": "Draft email"
   },
   "card": {
-    "score": "Match {{score}}",
-    "lastActivity": "Last activity {{when}}"
+    "score": "{{score}}% match",
+    "statusFollowUp": "Follow up",
+    "statusToTailor": "CV to tailor",
+    "lastActivity": "{{when}}",
+    "followUpTitle": "Follow up with {{company}}",
+    "tailorTitle": "Tailor your CV",
+    "matchTitle": "Review {{title}}"
   }
 }

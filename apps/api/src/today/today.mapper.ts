@@ -8,6 +8,7 @@ export function toTodayApplication(application: TodayApplicationRecord): TodayAp
         jobId: application.jobId,
         title: application.title,
         companyName: application.companyName,
+        jobUrl: application.jobUrl,
         lastActivityAt: application.lastActivityAt.toISOString(),
     };
 }

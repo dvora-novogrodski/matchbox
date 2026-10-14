@@ -5,6 +5,7 @@ export const FollowUpSchema = z.object({
     jobId: z.uuid(),
     title: z.string(),
     companyName: z.string(),
+    jobUrl: z.url().nullable(),
     lastActivityAt: z.iso.datetime(),
 });
 export type FollowUp = z.infer<typeof FollowUpSchema>;

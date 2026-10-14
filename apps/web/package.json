@@ -10,7 +10,10 @@
     "lint": "eslint src vite.config.ts --fix",
     "lint:ci": "eslint src vite.config.ts --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sync:svgs": "node scripts/sync-matchbox-svgs.mjs",
+    "normalize:illustrations": "node scripts/normalize-illustration-svgs.mjs",
+    "normalize:nav": "node scripts/normalize-nav-svgs.mjs"
   },
   "dependencies": {
     "@firebase/app": "^0.16.2",

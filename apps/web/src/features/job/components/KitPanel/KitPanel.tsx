@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ApplicationKit, UpdateApplicationKit } from '@matchbox/shared';
 import { UpdateApplicationKitSchema } from '@matchbox/shared';
-import { Alert, Button, CircularProgress, Stack, TextField, Typography } from '@matchbox/ui';
+import { Alert, Button, Card, CircularProgress, CopyIcon, Stack, TextField, Typography } from '@matchbox/ui';
 import { useState } from 'react';
 import { useForm, type UseFormRegisterReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -64,7 +64,14 @@ function KitForm({ applicationId, companyName, title, kit }: KitFormProps) {
 
     return (
         <Stack spacing={3}>
-            <Typography color="text.secondary">{t('kit.intro')}</Typography>
+            <Stack spacing={0.5}>
+                <Typography component="h2" sx={{ fontSize: '1rem', fontWeight: 600 }} variant="h6">
+                    {t('tabs.kit')}
+                </Typography>
+                <Typography color="text.secondary" sx={{ fontSize: '0.8125rem' }} variant="body2">
+                    {t('kit.intro')}
+                </Typography>
+            </Stack>
             {update.isError ? <Alert severity="error">{t('kit.saveFailed')}</Alert> : null}
             {update.isSuccess ? <Alert severity="success">{t('kit.saved')}</Alert> : null}
             {copied ? (
@@ -72,7 +79,7 @@ function KitForm({ applicationId, companyName, title, kit }: KitFormProps) {
             ) : null}
             {copyFailed ? <Alert severity="error">{t('kit.copyFailed')}</Alert> : null}
             {download.isError ? <Alert severity="error">{t('kit.downloadFailed')}</Alert> : null}
-            <Stack
+            <Card
                 component="form"
                 noValidate
                 onSubmit={(event) => {
@@ -80,63 +87,76 @@ function KitForm({ applicationId, companyName, title, kit }: KitFormProps) {
                         update.mutate(input);
                     })(event);
                 }}
-                spacing={2}
+                sx={{ p: 2 }}
             >
-                <KitField
-                    copyLabel={t('kit.copyCoverLetter')}
-                    error={Boolean(errors.coverLetter)}
-                    label={t('kit.coverLetterTitle')}
-                    onCopy={() => {
-                        void copyField('coverLetter', t('kit.coverLetterTitle'));
-                    }}
-                    registration={register('coverLetter')}
-                    testId="cover-letter"
-                />
-                <KitField
-                    copyLabel={t('kit.copyWhyCompany')}
-                    error={Boolean(errors.whyCompany)}
-                    label={t('kit.whyCompany')}
-                    onCopy={() => {
-                        void copyField('whyCompany', t('kit.whyCompany'));
-                    }}
-                    registration={register('whyCompany')}
-                    testId="why-company"
-                />
-                <KitField
-                    copyLabel={t('kit.copyWhyRole')}
-                    error={Boolean(errors.whyRole)}
-                    label={t('kit.whyRole')}
-                    onCopy={() => {
-                        void copyField('whyRole', t('kit.whyRole'));
-                    }}
-                    registration={register('whyRole')}
-                    testId="why-role"
-                />
-                <KitField
-                    copyLabel={t('kit.copyAboutYou')}
-                    error={Boolean(errors.aboutYou)}
-                    label={t('kit.aboutYou')}
-                    onCopy={() => {
-                        void copyField('aboutYou', t('kit.aboutYou'));
-                    }}
-                    registration={register('aboutYou')}
-                    testId="about-you"
-                />
-                <Button data-test="kit-save-button" disabled={update.isPending} type="submit" variant="contained">
-                    {t('kit.save')}
-                </Button>
-            </Stack>
-            <Button
-                data-test="kit-download-cv-button"
-                disabled={download.isPending}
-                onClick={() => {
-                    download.mutate(applicationId);
-                }}
-                type="button"
-                variant="outlined"
-            >
-                {t('kit.downloadCv')}
-            </Button>
+                <Stack spacing={3}>
+                    <KitField
+                        copyLabel={t('kit.copyCoverLetter')}
+                        error={Boolean(errors.coverLetter)}
+                        label={t('kit.coverLetterTitle')}
+                        onCopy={() => {
+                            void copyField('coverLetter', t('kit.coverLetterTitle'));
+                        }}
+                        registration={register('coverLetter')}
+                        testId="cover-letter"
+                    />
+                    <KitField
+                        copyLabel={t('kit.copyWhyCompany')}
+                        error={Boolean(errors.whyCompany)}
+                        label={t('kit.whyCompany')}
+                        onCopy={() => {
+                            void copyField('whyCompany', t('kit.whyCompany'));
+                        }}
+                        registration={register('whyCompany')}
+                        testId="why-company"
+                    />
+                    <KitField
+                        copyLabel={t('kit.copyWhyRole')}
+                        error={Boolean(errors.whyRole)}
+                        label={t('kit.whyRole')}
+                        onCopy={() => {
+                            void copyField('whyRole', t('kit.whyRole'));
+                        }}
+                        registration={register('whyRole')}
+                        testId="why-role"
+                    />
+                    <KitField
+                        copyLabel={t('kit.copyAboutYou')}
+                        error={Boolean(errors.aboutYou)}
+                        label={t('kit.aboutYou')}
+                        onCopy={() => {
+                            void copyField('aboutYou', t('kit.aboutYou'));
+                        }}
+                        registration={register('aboutYou')}
+                        testId="about-you"
+                    />
+                    <Button data-test="kit-save-button" disabled={update.isPending} type="submit" variant="contained">
+                        {t('kit.save')}
+                    </Button>
+                </Stack>
+            </Card>
+            <Card sx={{ p: 2 }}>
+                <Stack spacing={1.5}>
+                    <Typography component="h3" sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                        {t('kit.exportTitle')}
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ fontSize: '0.8125rem' }} variant="body2">
+                        {t('kit.exportDescription')}
+                    </Typography>
+                    <Button
+                        data-test="kit-download-cv-button"
+                        disabled={download.isPending}
+                        onClick={() => {
+                            download.mutate(applicationId);
+                        }}
+                        sx={{ alignSelf: 'flex-start' }}
+                        type="button"
+                        variant="outlined"
+                    >
+                        {t('kit.downloadCv')}
+                    </Button>
+                </Stack>
+            </Card>
         </Stack>
     );
 }
@@ -155,6 +175,21 @@ function KitField({ label, copyLabel, testId, error, registration, onCopy }: Kit
 
     return (
         <Stack spacing={1}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography component="h3" sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                    {label}
+                </Typography>
+                <Button
+                    data-test={`kit-copy-${testId}-button`}
+                    onClick={onCopy}
+                    size="small"
+                    startIcon={<CopyIcon fontSize="small" />}
+                    type="button"
+                    variant="outlined"
+                >
+                    {copyLabel}
+                </Button>
+            </Stack>
             <TextField
                 data-test={`kit-${testId}-input`}
                 error={error}
@@ -164,9 +199,6 @@ function KitField({ label, copyLabel, testId, error, registration, onCopy }: Kit
                 multiline
                 {...registration}
             />
-            <Button data-test={`kit-copy-${testId}-button`} onClick={onCopy} type="button" variant="text">
-                {copyLabel}
-            </Button>
         </Stack>
     );
 }

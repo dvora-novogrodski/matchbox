@@ -14,6 +14,10 @@ export function sampleDiscoverItem(overrides: Partial<DiscoverItem> = {}): Disco
         url: 'https://example.com/jobs/1',
         description: 'Build things',
         score: 82,
+        fitLines: [
+            { text: 'TypeScript, Node.js, React', tone: 'strength' },
+            { text: 'Asks for 5+ years', tone: 'gap' },
+        ],
         ...overrides,
     });
 }

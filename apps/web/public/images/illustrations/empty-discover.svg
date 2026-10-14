@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120" fill="none"><title>No new matches</title><ellipse cx="80" cy="110" rx="58" ry="4" fill="#ECE7E2"/>
+<g stroke="#232323" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="34" y="34" width="66" height="56" rx="6" fill="#F8F5F2" transform="rotate(-6 67 62)"/>
+<rect x="40" y="28" width="66" height="60" rx="6" fill="#FFFFFE"/>
+<path d="M49 40h28M49 50h44M49 59h36M49 68h20"/>
+<circle cx="108" cy="72" r="17" fill="#FFFFFE"/>
+<path d="M120 84l14 14"/>
+</g>
+<circle cx="108" cy="72" r="11" stroke="#078080" stroke-width="2"/>
+<path d="M134 98l-14-14" stroke="#078080" stroke-width="5" stroke-linecap="round"/>
+</svg>

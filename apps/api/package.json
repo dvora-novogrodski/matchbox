@@ -17,7 +17,8 @@
     "test:e2e": "jest --selectProjects e2e --runInBand",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "db:seed-demo": "npx tsx scripts/seed-demo-data.ts"
   },
   "dependencies": {
     "@matchbox/shared": "*",

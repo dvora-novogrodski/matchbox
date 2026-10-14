@@ -1,6 +1,8 @@
 import '@mui/material/styles';
+import '@mui/material/Badge';
 import '@mui/material/Button';
 import '@mui/material/Chip';
+import '@mui/material/SvgIcon';
 
 export type StatusToken = { bg: string; fg: string };
 
@@ -28,12 +30,18 @@ declare module '@mui/material/styles' {
 
     interface Palette {
         accent: Palette['primary'];
+        accentTint: string;
+        accentText: string;
+        primaryTint: string;
         status: StatusPalette;
         surface: SurfaceScale;
     }
 
     interface PaletteOptions {
         accent?: PaletteOptions['primary'];
+        accentTint?: string;
+        accentText?: string;
+        primaryTint?: string;
         status?: StatusPalette;
         surface?: SurfaceScale;
     }
@@ -45,8 +53,20 @@ declare module '@mui/material/Button' {
     }
 }
 
+declare module '@mui/material/Badge' {
+    interface BadgePropsColorOverrides {
+        accent: true;
+    }
+}
+
 declare module '@mui/material/Chip' {
     interface ChipPropsColorOverrides {
+        accent: true;
+    }
+}
+
+declare module '@mui/material/SvgIcon' {
+    interface SvgIconPropsColorOverrides {
         accent: true;
     }
 }

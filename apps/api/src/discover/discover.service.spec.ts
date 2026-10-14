@@ -60,6 +60,7 @@ function buildPosting(overrides: Partial<DiscoverPosting> = {}): DiscoverPosting
         url: 'https://example.com/jobs/1',
         description: 'Build things',
         score: 82,
+        fitLines: [],
         ...overrides,
     };
 }

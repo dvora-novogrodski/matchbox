@@ -26,6 +26,7 @@ export class PrismaFollowUpsRepository extends FollowUpsRepository {
             jobId: application.jobId,
             title: application.title,
             companyName: application.companyName,
+            jobUrl: application.url,
             lastActivityAt: application.lastActivityAt,
         }));
     }

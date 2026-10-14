@@ -1,0 +1,1 @@
+export { MatchboxWordmark } from './MatchboxWordmark';

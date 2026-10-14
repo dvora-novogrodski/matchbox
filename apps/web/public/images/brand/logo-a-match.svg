@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><title>Matchbox</title>
+<rect width="64" height="64" rx="14" fill="#078080"/>
+<path d="M22 46L40 24" stroke="#FFFFFE" stroke-width="6" stroke-linecap="round"/>
+<circle cx="43" cy="20.5" r="7" fill="#F45D48"/>
+</svg>

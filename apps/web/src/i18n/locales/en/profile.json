@@ -3,6 +3,9 @@
     "title": "Career profile",
     "description": "Everything Matchbox can draw on when tailoring your CV."
   },
+  "header": {
+    "headlineEmpty": "Add experience and skills so Matchbox can tailor your CV."
+  },
   "form": {
     "addTitle": {
       "experience": "Add experience",
